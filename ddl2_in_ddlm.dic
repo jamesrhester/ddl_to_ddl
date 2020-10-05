@@ -1,0 +1,2127 @@
+#\#CIF_2.0
+##############################################################
+#
+#        ddl_core (DDLm)
+#
+##############################################################
+data_ddl_core
+_dictionary.class                       	Instance
+_dictionary.date                        	'2000-10-16'
+_dictionary.ddl_conformance             	'3.14.0'
+_dictionary.namespace                   	ddlm
+_dictionary.title                       	ddl_core
+_dictionary.version                     	'2.1.3'
+
+save_HEAD
+
+_description.text                       	'This category is the parent of all other categories in the dictionary.'
+_definition.class                       	Head
+_definition.id                          	head
+_definition.scope                       	Category
+_name.category_id                       	head
+_name.object_id                         	head
+
+save_
+
+save_category
+
+_description.text                       	
+;
+     Attributes defining the functionality for the entire category.
+;
+_definition.class                       	Loop
+_definition.id                          	category
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	category
+_category_key.name                      	'_category.id'
+loop_
+ _method.purpose
+ _method.expression
+ Evaluation
+;
+    loop d as definition {
+       if (d.scope == "Category")
+           ddl2|category(.master_id = d.id,
+                         .id        = d.id)
+                    }
+;
+save_
+
+save__category.implicit_key
+
+_description.text                       	
+;
+     An identifier that may be used to distinguish the contents of
+     like categories between data blocks.
+;
+_definition.id                          	'_category.implicit_key'
+_name.category_id                       	category
+_name.linked_item_id                    	'_datablock.id'
+_name.object_id                         	implicit_key
+
+save_
+
+save__category.description
+
+_description.text                       	
+;
+     Text description of a category.
+;
+_definition.id                          	'_category.description'
+_name.category_id                       	category
+_name.object_id                         	description
+loop_
+ _method.purpose
+ _method.expression
+ Evaluation
+;
+    category.description = description[category.id].text
+;
+
+save_
+
+save__category.id
+
+_description.text                       	
+;
+     The identity of the data category. Data items may only be looped
+     with items of the same category.
+;
+_definition.id                          	'_category.id'
+_name.category_id                       	category
+_name.object_id                         	id
+
+save_
+
+save__category.mandatory_code
+
+_description.text                       	
+;
+     Whether the category must be specified in a dictionary.
+;
+_definition.id                          	'_category.mandatory_code'
+_name.category_id                       	category
+_name.object_id                         	mandatory_code
+
+save_
+
+save_category_examples
+
+_description.text                       	
+;
+     Example applications and descriptions of data items in this category.
+;
+_definition.class                       	Loop
+_definition.id                          	category_examples
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	category_examples
+loop_
+  _category_key.name
+  '_category_examples.id'
+  '_category_examples.case'
+loop_
+ _method.purpose
+ _method.expression
+ Evaluation
+;
+   loop de as description_example {
+       if (definition[de.master_id].scope == 'Category')
+           category_examples(.id == de.master_id,
+                             .case == de.case
+                             )
+                             
+   }
+;
+
+save_
+
+save__category_examples.detail
+
+_description.text                       	
+;
+     A description of an example given in _category_examples.case.
+;
+_definition.id                          	'_category_examples.detail'
+_name.category_id                       	category_examples
+_name.object_id                         	detail
+loop_
+ _method.purpose
+ _method.expression
+ Evaluation
+;
+   with ce as category_examples
+   category_examples.detail = description_examples[ce.id].detail
+;
+
+save_
+
+save__category_examples.case
+
+_description.text                       	
+;
+     A case of examples involving items in this category.
+;
+_definition.id                          	'_category_examples.case'
+_name.category_id                       	category_examples
+_name.object_id                         	case
+
+save_
+
+save__category_examples.id
+
+_definition.id                          	'_category_examples.id'
+_name.category_id                       	category_examples
+_name.linked_item_id                    	'_category.id'
+_name.object_id                         	id
+
+save_
+
+save_category_group
+
+_description.text                       	
+;
+     Provides a list of category groups to which the base category
+     belongs.
+;
+_definition.class                       	Loop
+_definition.id                          	category_group
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	category_group
+loop_
+  _category_key.name
+  '_category_group.id'
+  '_category_group.category_id'
+
+save_
+
+save__category_group.category_id
+
+_definition.id                          	'_category_group.category_id'
+_name.category_id                       	category_group
+_name.linked_item_id                    	'_category.id'
+_name.object_id                         	category_id
+
+save_
+
+save__category_group.id
+
+_definition.id                          	'_category_group.id'
+_name.category_id                       	category_group
+_name.linked_item_id                    	'_category_group_list.id'
+_name.object_id                         	id
+
+save_
+
+save_category_group_list
+
+_description.text                       	
+;
+     This category provides the definition of each category group.
+     A category group is a collection of related categories.
+;
+_definition.class                       	Loop
+_definition.id                          	category_group_list
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	category_group_list
+_category_key.name                      	'_category_group_list.id'
+
+save_
+
+save__category_group_list.description
+
+_description.text                       	
+;
+     Text description of a category group.
+;
+_definition.id                          	'_category_group_list.description'
+_name.category_id                       	category_group_list
+_name.object_id                         	description
+
+save_
+
+save__category_group_list.parent_id
+
+_description.text                       	
+;
+     The name of the optional parent category group.
+;
+_definition.id                          	'_category_group_list.parent_id'
+_name.category_id                       	category_group_list
+_name.linked_item_id                    	'_category_group_list.id'
+_name.object_id                         	parent_id
+
+save_
+
+save__category_group_list.id
+
+_description.text                       	
+;
+     The name of a category group.
+;
+_definition.id                          	'_category_group_list.id'
+_name.category_id                       	category_group_list
+_name.object_id                         	id
+
+save_
+
+save_category_key
+
+_description.text                       	
+;
+     This category holds a list of the item names that uniquely
+     identify the elements of the category.
+;
+_definition.class                       	Loop
+_definition.id                          	category_key
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	category_key
+loop_
+  _category_key.name
+  '_category_key.name'
+  '_category_key.id'
+loop_
+  _method.purpose
+  _method.expression
+  Evaluation
+;
+loop c as ddlm|category_key
+ddl2|category_key(.id = c.master_id,
+                  .name = c.name)
+;
+
+save_
+
+save__category_key.name
+
+_description.text                       	
+;
+     The name of a data item that serves as a key identifier for the
+     category (e.g. a component of  the primary key).
+;
+_definition.id                          	'_category_key.name'
+_name.category_id                       	category_key
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__category_key.id
+
+_definition.id                          	'_category_key.id'
+_name.category_id                       	category_key
+_name.linked_item_id                    	'_category.id'
+_name.object_id                         	id
+
+save_
+
+save_category_methods
+
+_description.text                       	
+;
+    Attributes specifying the association between categories and methods.
+;
+_definition.class                       	Loop
+_definition.id                          	category_methods
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	category_methods
+loop_
+  _category_key.name
+  '_category_methods.method_id'
+  '_category_methods.category_id'
+
+save_
+
+save__category_methods.category_id
+
+_definition.id                          	'_category_methods.category_id'
+_name.category_id                       	category_methods
+_name.linked_item_id                    	'_category.id'
+_name.object_id                         	category_id
+
+save_
+
+save__category_methods.method_id
+
+_definition.id                          	'_category_methods.method_id'
+_name.category_id                       	category_methods
+_name.linked_item_id                    	'_method_list.id'
+_name.object_id                         	method_id
+
+save_
+
+save_datablock
+
+_description.text                       	
+;
+     Attributes defining the characteristics of a data block.
+;
+_definition.class                       	Loop
+_definition.id                          	datablock
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	datablock
+_category_key.name                      	'_datablock.id'
+
+save_
+
+save__datablock.id
+
+_description.text                       	
+;
+     The identity of the data block.
+;
+_definition.id                          	'_datablock.id'
+_name.category_id                       	datablock
+_name.object_id                         	id
+
+save_
+
+save__datablock.description
+
+_description.text                       	
+;
+     Text description of the data block.
+;
+_definition.id                          	'_datablock.description'
+_name.category_id                       	datablock
+_name.object_id                         	description
+
+save_
+
+save_datablock_methods
+
+_description.text                       	
+;
+    Attributes specifying the association between data blocks and methods.
+;
+_definition.class                       	Loop
+_definition.id                          	datablock_methods
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	datablock_methods
+loop_
+  _category_key.name
+  '_datablock_methods.method_id'
+  '_datablock_methods.datablock_id'
+
+save_
+
+save__datablock_methods.datablock_id
+
+_definition.id                          	'_datablock_methods.datablock_id'
+_name.category_id                       	datablock_methods
+_name.linked_item_id                    	'_datablock.id'
+_name.object_id                         	datablock_id
+
+save_
+
+save__datablock_methods.method_id
+
+_definition.id                          	'_datablock_methods.method_id'
+_name.category_id                       	datablock_methods
+_name.linked_item_id                    	'_method_list.id'
+_name.object_id                         	method_id
+
+save_
+
+save_dictionary
+
+_description.text                       	
+;
+     Attributes for specifying the dictionary title, version and
+     data-block identifier.
+;
+_definition.class                       	Loop
+_definition.id                          	dictionary
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	dictionary
+_category_key.name                      	'_dictionary.datablock_id'
+loop_
+ _method.purpose
+ _method.expression
+;
+loop dd as ddlm|dictionary {
+    ddl2|dictionary(.title = dd.title,
+                    .version = dd.version
+                    )
+}
+;
+save_
+
+save__dictionary.datablock_id
+
+_description.text                       	
+;
+     The identifier for the data block containing the dictionary.
+;
+_definition.id                          	'_dictionary.datablock_id'
+_name.category_id                       	dictionary
+_name.linked_item_id                    	'_datablock.id'
+_name.object_id                         	datablock_id
+
+save_
+
+save__dictionary.version
+
+_description.text                       	
+;
+     A unique version identifier for the dictionary.
+;
+_definition.id                          	'_dictionary.version'
+_name.category_id                       	dictionary
+_name.linked_item_id                    	'_dictionary_history.version'
+_name.object_id                         	version
+
+save_
+
+save__dictionary.title
+
+_description.text                       	
+;
+     Title identifier of the dictionary.
+;
+_definition.id                          	'_dictionary.title'
+_name.category_id                       	dictionary
+_name.object_id                         	title
+
+save_
+
+save_dictionary_history
+
+_description.text                       	
+;
+   Attributes for specifying the revision history of the dictionary.
+;
+_definition.class                       	Loop
+_definition.id                          	dictionary_history
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	dictionary_history
+_category_key.name                      	'_dictionary_history.version'
+loop_
+_method.purpose
+_method.expression
+Evaluation
+;
+    loop da as dictionary_audit {
+        _dictionary_history(.version = da.version,
+                          .update    = da.update,
+                          .revision = da.revision,
+                          .master_id = "ddl_trans_dic"
+                          )
+    }
+;
+
+save_
+
+save__dictionary_history.revision
+
+_description.text                       	
+;
+     Text description of the dictionary revision.
+;
+_definition.id                          	'_dictionary_history.revision'
+_name.category_id                       	dictionary_history
+_name.object_id                         	revision
+
+save_
+
+save__dictionary_history.update
+
+_description.text                       	
+;
+     The date that the last dictionary revision took place.
+;
+_definition.id                          	'_dictionary_history.update'
+_name.category_id                       	dictionary_history
+_name.object_id                         	update
+
+save_
+
+save__dictionary_history.version
+
+_description.text                       	
+;
+     A unique version identifier for the dictionary revision.
+;
+_definition.id                          	'_dictionary_history.version'
+_name.category_id                       	dictionary_history
+_name.object_id                         	version
+
+save_
+
+save_head
+
+_description.text                       	'This category is the parent of all other categories in the dictionary.'
+_definition.class                       	Head
+_definition.id                          	head
+_definition.scope                       	Category
+_name.category_id                       	head
+_name.object_id                         	head
+
+save_
+
+save_item
+
+_description.text                       	
+;
+     Attributes which describe the characteristics of a data item.
+;
+_definition.class                       	Loop
+_definition.id                          	item
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item
+_category_key.name                      	'_item.name'
+loop_
+_method.purpose
+_method.expression
+Evaluation
+;
+  loop n as name {
+      item(.name = n.master_id)
+  }
+;
+save_
+
+save__item.name
+
+_description.text                       	
+;
+     Data name of the defined item.
+;
+_definition.id                          	'_item.name'
+_name.category_id                       	item
+_name.object_id                         	name
+
+save_
+
+save__item.category_id
+
+_definition.id                          	'_item.category_id'
+_name.category_id                       	item
+_name.linked_item_id                    	'_category.id'
+_name.object_id                         	category_id
+loop_
+_method.purpose
+_method.expression
+Evaluation
+;
+  item.category_id = name[item.name].category_id
+;
+save_
+
+save__item.mandatory_code
+
+_description.text                       	
+;
+     Signals whether the defined item is mandatory for the proper description
+     of its category.
+;
+_definition.id                          	'_item.mandatory_code'
+loop_
+  _enumeration_set.detail
+  _enumeration_set.state
+  'required item in this category'  yes
+  'optional item in this category'  no
+  'required item but may be determined from context'  implicit
+_name.category_id                       	item
+_name.object_id                         	mandatory_code
+
+save_
+
+save_item_aliases
+
+_description.text                       	
+;
+    This category holds a list of possible alias names or synonyms for
+    each data item.  Each alias name is identified by the name and
+    version of the dictionary to which it belongs.
+;
+_definition.class                       	Loop
+_definition.id                          	item_aliases
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_aliases
+loop_
+  _category_key.name
+  '_item_aliases.alias_name'
+  '_item_aliases.dictionary'
+  '_item_aliases.version'
+loop_
+_method.purpose
+_method.expression
+Evaluation
+;
+  loop a as alias {
+      item_aliases(.name = a.master_id,
+                   .alias_name = a.definition_id,
+                   .dictionary = a.dictionary_uri,
+                   .version = "0.0.0"
+                   )
+  }
+;
+
+save_
+
+save__item_aliases.version
+
+_description.text                       	
+;
+     The version of the dictionary in which the alias name is defined.
+;
+_definition.id                          	'_item_aliases.version'
+_name.category_id                       	item_aliases
+_name.object_id                         	version
+
+save_
+
+save__item_aliases.alias_name
+
+_description.text                       	
+;
+     Alias name for the data item.
+;
+_definition.id                          	'_item_aliases.alias_name'
+_name.category_id                       	item_aliases
+_name.object_id                         	alias_name
+
+save_
+
+save__item_aliases.name
+
+_definition.id                          	'_item_aliases.name'
+_name.category_id                       	item_aliases
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_aliases.dictionary
+
+_description.text                       	
+;
+     The dictionary in which the alias name is defined.
+;
+_definition.id                          	'_item_aliases.dictionary'
+_name.category_id                       	item_aliases
+_name.object_id                         	dictionary
+
+save_
+
+save_item_default
+
+_description.text                       	
+;
+     Attributes specifying the default value for a data item.
+;
+_definition.class                       	Loop
+_definition.id                          	item_default
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_default
+_category_key.name                      	'_item_default.name'
+loop_
+_method.purpose
+_method.expression
+Evaluation
+;
+   loop e as enumeration_default {
+         item_default(.name = e.master_id)
+   }
+;
+save_
+
+save__item_default.name
+
+_definition.id                          	'_item_default.name'
+_name.category_id                       	item_default
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_default.value
+
+_description.text                       	
+;
+     The default value for the defined item if it is not specified
+     explicitly. If a data value is not declared, the default is
+     assumed to be the most likely or natural value.
+;
+_definition.id                          	'_item_default.value'
+_name.category_id                       	item_default
+_name.object_id                         	value
+loop_
+  _method.purpose
+  _method.expression
+  Evaluation
+;
+   with e as enumeration
+  _item_default.value = enumeration[item_default.name].default
+;
+
+save_
+
+save_item_dependent
+
+_description.text                       	
+;
+     Attributes which identify other data items that must be specified
+     for the defined data item to be valid.
+;
+_definition.class                       	Loop
+_definition.id                          	item_dependent
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_dependent
+loop_
+  _category_key.name
+  '_item_dependent.name'
+  '_item_dependent.dependent_name'
+
+save_
+
+save__item_dependent.name
+
+_definition.id                          	'_item_dependent.name'
+_name.category_id                       	item_dependent
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_dependent.dependent_name
+
+_description.text                       	
+;
+     Data name of a dependent item.
+;
+_definition.id                          	'_item_dependent.dependent_name'
+_name.category_id                       	item_dependent
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	dependent_name
+
+save_
+
+save_item_description
+
+_description.text                       	
+;
+     This category holds the descriptions of each data item.
+;
+_definition.class                       	Loop
+_definition.id                          	item_description
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_description
+loop_
+  _category_key.name
+  '_item_description.name'
+  '_item_description.description'
+loop_
+_method.purpose
+_method.expression
+Evaluation
+;
+    loop d as description {
+        if (definition[d.master_id].scope == "Item")
+            item_description(.name = d.master_id)
+    }
+;
+save_
+
+save__item_description.description
+
+_description.text                       	
+;
+     Text description of the defined data item.
+;
+_definition.id                          	'_item_description.description'
+_name.category_id                       	item_description
+_name.object_id                         	description
+
+save_
+
+save__item_description.name
+
+_definition.id                          	'_item_description.name'
+_name.category_id                       	item_description
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save_item_enumeration
+
+_description.text                       	
+;
+     Attributes which specify the permitted enumeration of the items.
+;
+_definition.class                       	Loop
+_definition.id                          	item_enumeration
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_enumeration
+loop_
+  _category_key.name
+  '_item_enumeration.name'
+  '_item_enumeration.value'
+
+save_
+
+save__item_enumeration.value
+
+_description.text                       	
+;
+     A permissible value, character or number for the defined item.
+;
+_definition.id                          	'_item_enumeration.value'
+_name.category_id                       	item_enumeration
+_name.object_id                         	value
+
+save_
+
+save__item_enumeration.name
+
+_definition.id                          	'_item_enumeration.name'
+_name.category_id                       	item_enumeration
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_enumeration.detail
+
+_description.text                       	
+;
+     A description of a permissible value for the defined item.
+;
+_definition.id                          	'_item_enumeration.detail'
+_name.category_id                       	item_enumeration
+_name.object_id                         	detail
+
+save_
+
+save_item_examples
+
+_description.text                       	
+;
+    Attributes for describing examples of applications of the data item.
+;
+_definition.class                       	Loop
+_definition.id                          	item_examples
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_examples
+loop_
+  _category_key.name
+  '_item_examples.name'
+  '_item_examples.case'
+
+save_
+
+save__item_examples.name
+
+_definition.id                          	'_item_examples.name'
+_name.category_id                       	item_examples
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_examples.detail
+
+_description.text                       	
+;
+     A description of an example specified in _item_examples.case.
+;
+_definition.id                          	'_item_examples.detail'
+_name.category_id                       	item_examples
+_name.object_id                         	detail
+
+save_
+
+save__item_examples.case
+
+_description.text                       	
+;
+     An example application of the defined data item.
+;
+_definition.id                          	'_item_examples.case'
+_name.category_id                       	item_examples
+_name.object_id                         	case
+
+save_
+
+save_item_linked
+
+_description.text                       	
+;
+     Attributes which describe how equivalent data items are linked
+     within categories and across different categories.
+;
+_definition.class                       	Loop
+_definition.id                          	item_linked
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_linked
+_category_key.name                      	'_item_linked.child_name'
+
+save_
+
+save__item_linked.parent_name
+
+_description.text                       	
+;
+     Name of the parent data item.
+;
+_definition.id                          	'_item_linked.parent_name'
+_name.category_id                       	item_linked
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	parent_name
+
+save_
+
+save__item_linked.child_name
+
+_description.text                       	
+;
+     Name of the child data item.
+;
+_definition.id                          	'_item_linked.child_name'
+_name.category_id                       	item_linked
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	child_name
+
+save_
+
+save_item_methods
+
+_description.text                       	
+;
+    Attributes specifying the association between data items and methods.
+;
+_definition.class                       	Loop
+_definition.id                          	item_methods
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_methods
+loop_
+  _category_key.name
+  '_item_methods.method_id'
+  '_item_methods.name'
+
+save_
+
+save__item_methods.name
+
+_definition.id                          	'_item_methods.name'
+_name.category_id                       	item_methods
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_methods.method_id
+
+_definition.id                          	'_item_methods.method_id'
+_name.category_id                       	item_methods
+_name.linked_item_id                    	'_method_list.id'
+_name.object_id                         	method_id
+
+save_
+
+save_item_range
+
+_description.text                       	
+;
+     The range of permissible values of a data item.  When multiple
+     ranges are specified, they are interpreted sequentially
+     using a logical OR.  To specify that an item value may be
+     equal to a boundary value,  specify an item range where the
+     maximum and mimimum values equal the boundary value.
+;
+_definition.class                       	Loop
+_definition.id                          	item_range
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_range
+loop_
+  _category_key.name
+  '_item_range.name'
+  '_item_range.minimum'
+  '_item_range.maximum'
+
+save_
+
+save__item_range.minimum
+
+_description.text                       	
+;
+     Minimum permissible value of a data item or the lower bound
+     of a permissible range  ( minimum value <  data value).
+;
+_definition.id                          	'_item_range.minimum'
+_name.category_id                       	item_range
+_name.object_id                         	minimum
+
+save_
+
+save__item_range.name
+
+_definition.id                          	'_item_range.name'
+_name.category_id                       	item_range
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_range.maximum
+
+_description.text                       	
+;
+     Maximum permissible value of a data item or the upper bound
+     of a permissible range  ( maximum value >  data value).
+;
+_definition.id                          	'_item_range.maximum'
+_name.category_id                       	item_range
+_name.object_id                         	maximum
+
+save_
+
+save_item_related
+
+_description.text                       	
+;
+    Attributes which specify recognized relationships between data items.
+;
+_definition.class                       	Loop
+_definition.id                          	item_related
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_related
+loop_
+  _category_key.name
+  '_item_related.name'
+  '_item_related.related_name'
+  '_item_related.function_code'
+
+save_
+
+save__item_related.name
+
+_definition.id                          	'_item_related.name'
+_name.category_id                       	item_related
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_related.related_name
+
+_description.text                       	
+;
+     Identifies a data item by name which is closely related to the
+     defined data item by the manner described by _item_related.function_code
+;
+_definition.id                          	'_item_related.related_name'
+_name.category_id                       	item_related
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	related_name
+
+save_
+
+save__item_related.function_code
+
+_description.text                       	
+;
+     The code for the type of relationship between the item identified by
+     _item_related.name and the defined item.
+
+      ALTERNATE  indicates that the item identified in
+      _item_related.related_name is an alternative expression in terms
+      of its application and attributes to the item in this definition.
+
+      ALTERNATE_EXCLUSIVE indicates that the item identified in
+      _item_related.related_name is an alternative expression in terms
+      of its application and attributes to the item in this definition.
+      Only one of the alternative forms may be specified.
+
+      CONVENTION  indicates that the item identified in
+      _item_related.related_name differs from the defined item only
+      in terms of a convention in its expression.
+
+      CONVERSION_CONSTANT indicates that the item identified in
+      _item_related.related_name differs from the defined item only
+      by a known constant.
+
+      CONVERSION_ARBITRARY indicates that the item identified in
+      _item_related.related_name differs from the defined item only
+      by an arbitrary constant.
+
+      REPLACES  indicates that the defined item replaces the item identified
+      in _item_related.related_name.
+
+      REPLACEDBY  indicates that the defined item is replaced by the
+      item identified in  _item_related.related_name.
+
+      ASSOCIATED_VALUE indicates that the item identified in
+      _item_related.related_name is meaningful when associated with the
+      defined item.
+
+      ASSOCIATED_ESD indicates that the item identified in
+      _item_related.related_name is the estimated standard deviation of
+      of the defined item.
+
+      ASSOCIATED_ERROR indicates that the item identified in
+      _item_related.related_name is the estimated error of
+      of the defined item.
+;
+_definition.id                          	'_item_related.function_code'
+loop_
+  _enumeration_set.detail
+  _enumeration_set.state
+  'alternate form of the item'  alternate
+  'mutually exclusive alternate form of the item'  alternate_exclusive
+  'depends on defined convention'  convention
+  'related by a known conversion factor'  conversion_constant
+  'related by an arbitrary conversion factor'  conversion_arbitrary
+  'a replacement definition'  replaces
+  'an obsolete definition'  replacedby
+  'a meaningful value when related to the item'  associated_value
+  'an estimated standard deviation of the item'  associated_esd
+  'an estimated error of the item'  associated_error
+_name.category_id                       	item_related
+_name.object_id                         	function_code
+
+save_
+
+save_item_structure
+
+_description.text                       	
+;
+    This category holds the association between data items and
+    named vector/matrix declarations.
+;
+_definition.class                       	Loop
+_definition.id                          	item_structure
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_structure
+_category_key.name                      	'_item_structure.name'
+
+save_
+
+save__item_structure.code
+
+_definition.id                          	'_item_structure.code'
+_name.category_id                       	item_structure
+_name.linked_item_id                    	'_item_structure_list.code'
+_name.object_id                         	code
+
+save_
+
+save__item_structure.name
+
+_definition.id                          	'_item_structure.name'
+_name.category_id                       	item_structure
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_structure.organization
+
+_description.text                       	
+;
+     Identifies whether the structure is defined in column- or row-major order.
+     Only the unique elements of symmetric matrices are specified.
+;
+_definition.id                          	'_item_structure.organization'
+loop_
+  _enumeration_set.detail
+  _enumeration_set.state
+  'column-major order'  columnwise
+  'row-major order'  rowwise
+_name.category_id                       	item_structure
+_name.object_id                         	organization
+
+save_
+
+save_item_structure_list
+
+_description.text                       	
+;
+     This category holds a description for each structure type.
+;
+_definition.class                       	Loop
+_definition.id                          	item_structure_list
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_structure_list
+loop_
+  _category_key.name
+  '_item_structure_list.code'
+  '_item_structure_list.index'
+
+save_
+
+save__item_structure_list.code
+
+_description.text                       	
+;
+     The name of the matrix/vector structure declaration.
+;
+_definition.id                          	'_item_structure_list.code'
+_name.category_id                       	item_structure_list
+_name.object_id                         	code
+
+save_
+
+save__item_structure_list.dimension
+
+_description.text                       	
+;
+    Identifies the length of this row/column of the structure.
+;
+_definition.id                          	'_item_structure_list.dimension'
+_name.category_id                       	item_structure_list
+_name.object_id                         	dimension
+_type.contents                          	Integer
+
+save_
+
+save__item_structure_list.index
+
+_description.text                       	
+;
+    Identifies the one-based index of a row/column of the structure.
+;
+_definition.id                          	'_item_structure_list.index'
+_name.category_id                       	item_structure_list
+_name.object_id                         	index
+_type.contents                          	Integer
+
+save_
+
+save_item_sub_category
+
+_description.text                       	
+;
+     This category assigns data items to subcategories.
+;
+_definition.class                       	Loop
+_definition.id                          	item_sub_category
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_sub_category
+loop_
+  _category_key.name
+  '_item_sub_category.id'
+  '_item_sub_category.name'
+
+save_
+
+save__item_sub_category.name
+
+_definition.id                          	'_item_sub_category.name'
+_name.category_id                       	item_sub_category
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_sub_category.id
+
+_definition.id                          	'_item_sub_category.id'
+_name.category_id                       	item_sub_category
+_name.linked_item_id                    	'_sub_category.id'
+_name.object_id                         	id
+
+save_
+
+save_item_type
+
+_description.text                       	
+;
+     Attributes for specifying the data-type code for each data item.
+;
+_definition.class                       	Loop
+_definition.id                          	item_type
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_type
+_category_key.name                      	'_item_type.name'
+
+save_
+
+save__item_type.name
+
+_definition.id                          	'_item_type.name'
+_name.category_id                       	item_type
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_type.code
+
+_definition.id                          	'_item_type.code'
+_name.category_id                       	item_type
+_name.linked_item_id                    	'_item_type_list.code'
+_name.object_id                         	code
+
+save_
+
+save_item_type_conditions
+
+_description.text                       	
+;
+    Attributes for specifying additional conditions associated with
+    the data type of the item.
+;
+_definition.class                       	Loop
+_definition.id                          	item_type_conditions
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_type_conditions
+_category_key.name                      	'_item_type_conditions.name'
+
+save_
+
+save__item_type_conditions.name
+
+_definition.id                          	'_item_type_conditions.name'
+_name.category_id                       	item_type_conditions
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_type_conditions.code
+
+_description.text                       	
+;
+     Codes defining conditions on the _item_type.code specification.
+
+     'esd' permits a number string to contain an appended standard
+           deviation number enclosed within parentheses, e.g. 4.37(5)
+
+     'seq' permits data to be declared as a sequence of values
+           separated by a comma <,> or a colon <:>.
+           * The sequence v1,v2,v3,. signals that v1, v2, v3, etc.
+             are alternative values or the data item.
+           * The sequence v1:v2 signals that v1 and v2 are the boundary
+             values of a continuous range of values. This mechanism
+             was used to specify permitted ranges of an item in
+             previous DDL versions.
+      Combinations of alternate and range sequences are permitted.
+;
+_definition.id                          	'_item_type_conditions.code'
+loop_
+  _enumeration_set.detail
+  _enumeration_set.state
+  'no extra conditions apply to this data item'  none
+  'numbers may have esd values appended within parentheses'  esd
+  'data may be declared as a comma- or colon-separated sequence'  seq
+_name.category_id                       	item_type_conditions
+_name.object_id                         	code
+
+save_
+
+save_item_type_list
+
+_description.text                       	
+;
+     Attributes which define each type code.
+;
+_definition.class                       	Loop
+_definition.id                          	item_type_list
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_type_list
+_category_key.name                      	'_item_type_list.code'
+
+save_
+
+save__item_type_list.construct
+
+_description.text                       	
+;
+    When a data value can be defined as a pre-determined sequence of
+    characters, optional characters  or data names (for which the
+    definition is also available), it is specified as a construction.
+    The rules of construction conform to the the regular expression
+    (REGEX) specifications detailed in IEEE (1991).
+    Resolved data names for which _item_type_list.construct
+    specifications exist are replaced by these constructions,
+    otherwise the data-name string is not replaced.
+
+    Ref: IEEE (1991). IEEE Standard for Information Technology -
+    Portable Operating System Interface (POSIX) - Part 2: Shell
+    and Utilities, Vol. 1, IEEE Standard 1003.2-1992. New York:
+    The Institute of Electrical Engineers.
+;
+_description_example.case               	'{_year}-{_month}-{_day}'
+_description_example.detail             	'typical construction for _date'
+_definition.id                          	'_item_type_list.construct'
+_name.category_id                       	item_type_list
+_name.object_id                         	construct
+
+save_
+
+save__item_type_list.detail
+
+_description.text                       	
+;
+     An optional description of the data type.
+;
+_definition.id                          	'_item_type_list.detail'
+_name.category_id                       	item_type_list
+_name.object_id                         	detail
+
+save_
+
+save__item_type_list.code
+
+_description.text                       	
+;
+     The codes specifying the nature of the data value.
+;
+_definition.id                          	'_item_type_list.code'
+_name.category_id                       	item_type_list
+_name.object_id                         	code
+
+save_
+
+save__item_type_list.primitive_code
+
+_description.text                       	
+;
+     The codes specifying the primitive type of the data value.
+;
+_definition.id                          	'_item_type_list.primitive_code'
+loop_
+  _enumeration_set.detail
+  _enumeration_set.state
+  'numerically interpretable string'  numb
+  'character or text string (case-sensitive)'  char
+  'character or text string (case-insensitive)'  uchar
+  'for dictionary purposes only'  null
+_name.category_id                       	item_type_list
+_name.object_id                         	primitive_code
+
+save_
+
+save_item_units
+
+_description.text                       	
+;
+     Specifies the physical units in which data items are expressed.
+;
+_definition.class                       	Loop
+_definition.id                          	item_units
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_units
+_category_key.name                      	'_item_units.name'
+
+save_
+
+save__item_units.name
+
+_definition.id                          	'_item_units.name'
+_name.category_id                       	item_units
+_name.linked_item_id                    	'_item.name'
+_name.object_id                         	name
+
+save_
+
+save__item_units.code
+
+_definition.id                          	'_item_units.code'
+_name.category_id                       	item_units
+_name.linked_item_id                    	'_item_units_list.code'
+_name.object_id                         	code
+
+save_
+
+save_item_units_conversion
+
+_description.text                       	
+;
+     Conversion factors between the various units of measure defined
+     in the ITEM_UNITS_LIST category.
+;
+_definition.class                       	Loop
+_definition.id                          	item_units_conversion
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_units_conversion
+loop_
+  _category_key.name
+  '_item_units_conversion.from_code'
+  '_item_units_conversion.to_code'
+
+save_
+
+save__item_units_conversion.to_code
+
+_description.text                       	
+;
+     The unit system produced after an operation is applied to the unit
+     system specified by  _item_units_conversion.from_code.
+
+         <to_code> =  <from_code> <operator> <factor>
+;
+_definition.id                          	'_item_units_conversion.to_code'
+_name.category_id                       	item_units_conversion
+_name.linked_item_id                    	'_item_units_list.code'
+_name.object_id                         	to_code
+
+save_
+
+save__item_units_conversion.from_code
+
+_description.text                       	
+;
+     The unit system on which the conversion operation is applied
+     to produce the unit system specified in _item_units_conversion.to_code.
+
+         <to_code> =  <from_code> <operator> <factor>
+;
+_definition.id                          	'_item_units_conversion.from_code'
+_name.category_id                       	item_units_conversion
+_name.linked_item_id                    	'_item_units_list.code'
+_name.object_id                         	from_code
+
+save_
+
+save__item_units_conversion.factor
+
+_description.text                       	
+;
+     The arithmetic operation required to convert between the
+     unit systems:
+         <to_code> =  <from_code> <operator> <factor>
+;
+_definition.id                          	'_item_units_conversion.factor'
+_name.category_id                       	item_units_conversion
+_name.object_id                         	factor
+
+save_
+
+save__item_units_conversion.operator
+
+_description.text                       	
+;
+     The arithmetic operator required to convert between the
+     unit systems:
+         <to_code> =  <from_code> <operator> <factor>
+;
+_definition.id                          	'_item_units_conversion.operator'
+loop_
+  _enumeration_set.detail
+  _enumeration_set.state
+  addition  '+'
+  subtraction  '-'
+  multiplication  '*'
+  division  '/'
+_name.category_id                       	item_units_conversion
+_name.object_id                         	operator
+
+save_
+
+save_item_units_list
+
+_description.text                       	
+;
+     Attributes which describe the physical units of measurement
+     in which data items may be expressed.
+;
+_definition.class                       	Loop
+_definition.id                          	item_units_list
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	item_units_list
+_category_key.name                      	'_item_units_list.code'
+
+save_
+
+save__item_units_list.code
+
+_description.text                       	
+;
+     The code specifying the name of the unit of measurement.
+;
+_definition.id                          	'_item_units_list.code'
+_name.category_id                       	item_units_list
+_name.object_id                         	code
+
+save_
+
+save__item_units_list.detail
+
+_description.text                       	
+;
+     A description of the unit of measurement.
+;
+_definition.id                          	'_item_units_list.detail'
+_name.category_id                       	item_units_list
+_name.object_id                         	detail
+
+save_
+
+save_method_list
+
+_description.text                       	
+;
+    Attributes specifying the list of methods applicable to data items,
+    subcategories and categories.
+;
+_definition.class                       	Loop
+_definition.id                          	method_list
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	method_list
+_category_key.name                      	'_method_list.id'
+
+save_
+
+save__method_list.detail
+
+_description.text                       	
+;
+     Description of application method in _method_list.id.
+;
+_definition.id                          	'_method_list.detail'
+_name.category_id                       	method_list
+_name.object_id                         	detail
+
+save_
+
+save__method_list.inline
+
+_description.text                       	
+;
+     In-line text of a method associated with the data item.
+;
+_definition.id                          	'_method_list.inline'
+_name.category_id                       	method_list
+_name.object_id                         	inline
+
+save_
+
+save__method_list.language
+
+_description.text                       	
+;
+     Language in which the method is expressed.
+;
+loop_
+  _description_example.case
+  BNF
+  C
+  'C++'
+  FORTRAN
+  LISP
+  PASCAL
+  PEARL
+  TCL
+  OTHER
+_definition.id                          	'_method_list.language'
+_name.category_id                       	method_list
+_name.object_id                         	language
+
+save_
+
+save__method_list.code
+
+_description.text                       	
+;
+     A code that describes the function of the method.
+;
+loop_
+  _description_example.detail
+  _description_example.case
+  'method to calculate the item '  calculation
+  'method to verify the data item '  verification
+  'method to provide cast conversion '  cast
+  'method to define item + item '  addition
+  'method to define item / item '  division
+  'method to define item * item '  multiplication
+  'method to define item = item '  equivalence
+  'miscellaneous method '  other
+_definition.id                          	'_method_list.code'
+_name.category_id                       	method_list
+_name.object_id                         	code
+
+save_
+
+save__method_list.id
+
+_description.text                       	
+;
+     Unique identifier for each method listed.
+;
+_definition.id                          	'_method_list.id'
+_name.category_id                       	method_list
+_name.object_id                         	id
+
+save_
+
+save_sub_category
+
+_description.text                       	
+;
+     The purpose of a subcategory is to define an association between
+     data items within a category and optionally to provide a method to
+     validate the collection of items.   For example, the subcategory named
+     'cartesian' might be applied to the data items for the coordinates
+      x,  y and z.
+;
+_definition.class                       	Loop
+_definition.id                          	sub_category
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	sub_category
+_category_key.name                      	'_sub_category.id'
+
+save_
+
+save__sub_category.id
+
+_description.text                       	
+;
+     The identity of the subcategory.
+;
+_definition.id                          	'_sub_category.id'
+_name.category_id                       	sub_category
+_name.object_id                         	id
+
+save_
+
+save__sub_category.description
+
+_description.text                       	
+;
+     Description of the subcategory.
+;
+_definition.id                          	'_sub_category.description'
+_name.category_id                       	sub_category
+_name.object_id                         	description
+
+save_
+
+save_sub_category_examples
+
+_description.text                       	
+;
+     Example applications and descriptions of data items in this subcategory.
+;
+_definition.class                       	Loop
+_definition.id                          	sub_category_examples
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	sub_category_examples
+loop_
+  _category_key.name
+  '_sub_category_examples.id'
+  '_sub_category_examples.case'
+
+save_
+
+save__sub_category_examples.case
+
+_description.text                       	
+;
+     An example involving items in this subcategory.
+;
+_definition.id                          	'_sub_category_examples.case'
+_name.category_id                       	sub_category_examples
+_name.object_id                         	case
+
+save_
+
+save__sub_category_examples.detail
+
+_description.text                       	
+;
+     A description of an example given in _sub_category_examples.case.
+;
+_definition.id                          	'_sub_category_examples.detail'
+_name.category_id                       	sub_category_examples
+_name.object_id                         	detail
+
+save_
+
+save__sub_category_examples.id
+
+_definition.id                          	'_sub_category_examples.id'
+_name.category_id                       	sub_category_examples
+_name.linked_item_id                    	'_sub_category.id'
+_name.object_id                         	id
+
+save_
+
+save_sub_category_methods
+
+_description.text                       	
+;
+    Attributes specifying the association between subcategories and methods.
+;
+_definition.class                       	Loop
+_definition.id                          	sub_category_methods
+_definition.scope                       	Category
+_name.category_id                       	HEAD
+_name.object_id                         	sub_category_methods
+loop_
+  _category_key.name
+  '_sub_category_methods.method_id'
+  '_sub_category_methods.sub_category_id'
+
+save_
+
+save__sub_category_methods.sub_category_id
+
+_definition.id                          	'_sub_category_methods.sub_category_id'
+_name.category_id                       	sub_category_methods
+_name.linked_item_id                    	'_sub_category.id'
+_name.object_id                         	sub_category_id
+
+save_
+
+save__sub_category_methods.method_id
+
+_definition.id                          	'_sub_category_methods.method_id'
+_name.category_id                       	sub_category_methods
+_name.linked_item_id                    	'_method_list.id'
+_name.object_id                         	method_id
+
+save_
+loop_
+  _dictionary_audit.revision
+  _dictionary_audit.date
+  _dictionary_audit.version
+
+;
+       DDL 1.1 from Syd Hall et. al.
+;  '1994-07-25'  '1.1'
+
+;
+       Changes:.........etc. etc. John Westbrook
+;  '1994-09-18'  '1.2.1'
+
+;
+       Reflect the results of the Treaty of Brussels. JW.
+;  '1994-10-05'  '1.2.9'
+
+;
+       Adapted for closer mapping to DDL1.3 and clearer presentation. SRH/NS.
+;  '1994-10-15'  '2.0.1'
+
+;
+       Even closer...................  SRH/NS.
+;  '1994-10-16'  '2.0.2'
+
+;
+       Coming to grips with the links and dependencies..... SRH/NS.
+;  '1994-10-17'  '2.0.3'
+
+;
+       Backed in changes from mm-ddl 1.2.12
+       Many other changes  ...  (JW)
+;  '1994-10-20'  '2.0.4'
+
+;
+       Some small adjustments..........SRH.
+;  '1994-10-20'  '2.0.5'
+
+;
+       More small adjustments..........JW.
+;  '1994-10-20'  '2.0.6'
+
+;
+       Changes:  (JW)
+         + Place all item and item_linked category definitions with the parent
+           item.
+         + Fixed a number of not so trivial typos.
+         + Corrected errors in the data type conversion table.
+         + Corrected key item inconsistencies.
+         + Added the item_aliases category.
+;  '1994-11-03'  '2.0.7'
+
+;
+       Miscellaneous corrections:  (JW)
+         +    defined sub_category_group
+         +    corrected typo in category_examples.id definition
+         +    added  _item_type_conditions.name in item category
+         +    added  _item_structure.name in item category
+         +    corrected typo in item_aliases category definition
+         +    corrected typo in sub_category.method_id  definition
+;  '1994-11-10'  '2.0.8'
+
+;
+       Changes: (JW)
+         +    added ITEM_UNITS, ITEM_UNITS_LIST, and UNITS_CONVERSION
+              categories.
+         +    added an additional primitive type for character type items
+              for which comparisons must be case insensitive.
+              Since it is customary to permit item names and category
+              identifiers to be specified in mixed case, it is necessary
+              to declare that case should NOT be considered in any
+              comparisons of these items.
+;  '1994-11-14'  '2.0.9'
+
+;
+       Changes: (JW)
+         +    Several name category changes for the sake of consistency:
+                enumeration         -> item_enumeration
+                enumeration_default -> item_enumeration_default
+                enumeration_limit   -> item_enumeration_limit
+                units_conversion    -> item_units_conversion
+         +    Added _item_related.function_code alternate_exclusive
+              to identify mutually exclusive alternative declarations
+              of the same item.
+         +    Added structure options for real symmetric matrices.
+         +    Changed from zero based indices to one based indices
+              for compatibility with existing matrix component
+              definitions.
+         +    Add _item_linked.parent_name to the key of the item_linked
+              category.
+         +    Reorder items in the DDL so be alphabetical within
+              category groups.
+;  '1994-11-23'  '2.0.10'
+
+;
+       Changes: (JW)
+         +    Corrected spelling error for the data type code in
+              the DICTIONARY_HISTORY category.
+         +    Add category BLOCK to hold the data block name and data
+              block description.  The block identifier was also added
+              to  the key of the item category.  The block identifier
+              can be implicitly derived from the STAR "data_" delimiter.
+              This identifier is required to form the key for categories
+              which are conceptually related to the data block as a
+              whole.
+;  '1994-11-28'  '2.0.11'
+
+;
+       Changes: (JW)
+         +    Added a data item _block.scope to indicate the scope of
+              data item names defined within included data blocks.
+;  '1994-11-30'  '2.0.12'
+
+;
+       Changes: (JW)
+         +    Deleted data item _block.scope.
+         +    Changed DICTIONARY category key to _dictionary.block_id
+              to guarantee only one dictionary definition per block.
+         +    Deleted data item _item.block_id as this will be replaced
+              by an item address syntax that will include block, save
+              frame, and url.
+;  '1994-12-12'  '2.0.13'
+
+;
+       Changes: (JW)
+         +    Made some terminology changes suggested by PMDF
+              _item_enumeration.code   -> _item_enumeration.value
+              ITEM_ENUMERATION_DEFAULT -> ITEM_DEFAULT
+              ITEM_ENUMERATION_LIMIT   -> ITEM_RANGE
+         +    Added item _item_type_list.detail
+         +    Version 2.0.14 is being frozen and exported.
+;  '1994-12-15'  '2.0.14'
+
+;
+       Changes: (JW)
+         +    Added '_' prefix to all data item save frame names.
+              References to data item names now always include
+              a leading underscore independent of the usage context.
+         +    A few miscellaneous corrections.
+;  '1995-02-13'  '2.0.15'
+
+;
+       Changes: (JW)
+         +    Revised the block level categories in the following ways:
+                Changed category BLOCK to DATA_BLOCK.
+                Added connection from _data_block.id to _category.implicit_key
+                in order to provide a formal means of merging the contents
+                of categories between data blocks.
+         +    Moved ennumerations for _method_list.code and
+              method_list.language to examples.
+         +    Removed symmetric matrix options from the ennumerations
+              for _item_structure.organization.
+         +    Added _item_related.function codes for 'associated_value',
+              'associated_esd', 'replaces' and 'replacedby'
+         +    Added data items _item_aliases.dictionary and
+              _item_aliases.dictionary_version.
+         +    Reorganized method categories such that multiple methods can
+              be applied at each level of data structure.  Introduced a
+              consistent set of categories to hold method associations:
+              ITEM_METHODS, CATEGORY_METHODS, SUB_CATEGORY_METHODS, and
+              DATA_BLOCK_METHODS.  Removed data items  _category.method_id
+              _sub_category.method_id.
+;  '1995-06-18'  '2.0.16'
+
+;
+       Changes: (JW)
+         +    Quoted data vaules containing the leading string  'data_'.
+;  '1995-06-22'  '2.0.17'
+
+;
+       Changes: (JW)
+       Final adjustments before the first release of the mmCIF dictionary:
+             + changed data_block to datablock to avoid any problems with
+               the STAR data_ reserved token.
+             + created new category to hold item subcategory associations
+               and deleted the subcategory attribute from ITEM category.
+             + modified regular expressions to reflect limitations observed
+               on several platforms.
+             + expanded the ennumeration of _item_related.function_code.
+             + removed default value from _item.manadatory_code.
+             + removed type construct for date and changed date data type
+               to yyyy-mm-dd
+             + added less restrictive data type for alias names.
+;  '1995-07-20'  '2.1.0'
+
+;
+       Changes: (JW)
+             + Changed regular expressions for type code to permit
+               single quote.
+             + Corrected regular expression syntax for type name and
+               type date.
+             + Corrected lower bound description for item_range.minimum.
+               The incorrect <= condition is changed to <.
+             + _item_mandatory.code has been now a mandatory item.
+             + _item_aliases.dictionary and _item_aliases.dictionary_version
+               are added to the composite key for category ITEM_ALIASES.
+             + _datablock.id data type changes to type code.
+             + Shortened the name _item_aliases.dictionary_version to
+               _item_aliases.version
+;  '1995-09-26'  '2.1.1'
+
+;
+       Changes: (JW)
+             + Added associated_error to the enumeration list of
+               _item_related.function_code.
+;  '1997-01-24'  '2.1.2'
+
+;
+   2000-10-16    Changes: (JW)
+             + Changed data type for regular expression in
+               _item_type_list.construct to type text.
+
+   2005-02-28   Minor corrections to spelling and punctuation (NJA)
+   2005-06-20   Corrections to proofs of Chapter 4.10 of Intl Tables Vol.
+                G included (NJA) - the dictionary release date has not
+                been changed nor the version number incremented because
+                of the asynchronous release of version 2.1.6.
+;  '2000-10-16'  '2.1.3'

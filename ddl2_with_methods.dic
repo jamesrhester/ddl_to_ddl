@@ -1467,6 +1467,8 @@ save_ITEM_ENUMERATION
     _category_group.category_id
          'ddl_group'                     item_enumeration
          'item_group'                    item_enumeration
+    _category_methods.method_id          item_enumeration
+
      save_
 
 save__item_enumeration.name
@@ -1536,7 +1538,8 @@ save_ITEM_EXAMPLES
     _category_group.category_id
          'ddl_group'                     item_examples
          'item_group'                    item_examples
-     save_
+    _category_methods.method_id          item_examples
+save_
 
 save__item_examples.name
 
@@ -1605,7 +1608,8 @@ save_ITEM_LINKED
     _category_group.category_id
          'ddl_group'                     item_linked
          'item_group'                    item_linked
-     save_
+    _category_methods.method_id          item_linked
+save_
 
 
 save__item_linked.child_name    
@@ -1721,7 +1725,8 @@ save_ITEM_RANGE
     _category_group.category_id
          'ddl_group'                     item_range
          'item_group'                    item_range
-     save_
+    _category_methods.method_id          item_range
+save_
 
 
 save__item_range.name
@@ -2141,7 +2146,8 @@ save_ITEM_TYPE
     _category_group.category_id
          'ddl_group'                     item_type
          'item_group'                    item_type
-     save_
+    _category_methods.method_id          item_type
+save_
 
 save__item_type.name
 
@@ -3134,7 +3140,7 @@ _method_list.inline
 category calculation dREL
 ;
     loop d as definition {
-       if (d.scope == "Category")
+       if (d.scope == "Category" and d.class == "Loop")
            ddl2|category(.master_id = d.id,
                          .id        = d.id)
                     }
@@ -3148,7 +3154,7 @@ category_description calculation dREL
 category_examples calculation dREL
 ;
    loop de as description_example {
-       if (definition[de.master_id].scope == 'Category')
+       if (definition[de.master_id].scope == 'Category' and definition[de.master_id].class== "Loop")
            category_examples(.id = de.master_id,
                              .case = de.case
                              )
@@ -3214,7 +3220,7 @@ item_aliases calculation dREL
 
 item_default calculation dREL
 ;
-   loop e as enumeration_default {
+   loop e as enumeration {
          item_default(.name = e.master_id)
    }
 ;
@@ -3234,4 +3240,80 @@ item_description calculation dREL
                              .description = d.text)
             }
     }
+;
+
+item_enumeration calculation dREL
+;
+loop es as enumeration_set {
+    item_enumeration(.name = es.name,
+                     .value = es.state,
+                     .detail = es.detail
+                     )
+}
+;
+
+item_examples calculation dREL
+;
+loop de as description_examples {
+    if (definition[de.master_id].scope == 'Item') {
+        item_examples(.name = de.master_id,
+                      .case = de.case,
+                      .detail = de.detail
+                      )
+    }
+}
+;
+
+item_linked calculation dREL
+;
+loop n as name {
+    if (n.linked_item_id != NULL) {
+        item_linked(.child_name = n.master_id,
+                    .parent_name = n.linked_item_id
+                   )
+         }
+    }
+;
+
+item_range calculation dREL
+;
+loop e as enumeration {
+    if (not is_missing(e.range)) {
+    min,max = split(e.range,":")
+    if(min == "") min = NULL
+    if(max == "") max = NULL
+    item_range(.name = e.master_id,
+               .minimum = min,
+               .maximum = max
+               )
+    # and the upper/lower bounds
+    if (min != NULL) {
+    item_range(.name = e.master_id,
+               .minimum = min,
+               .maximum = min
+               )
+               }
+    if (max != NULL) {
+    item_range(.name = e.master_id,
+               .minimum = max,
+               .maximum = max
+               )
+               }
+        }
+}
+;
+
+item_type calculation dREL
+;
+loop t as type {
+    contents = 'text'
+    if (t.contents == 'Code') contents = 'code'
+    item_type(.name = t.master_id,
+              .code = contents
+              )
+    }
+;
+
+item_type_list calculation dREL
+;
 ;

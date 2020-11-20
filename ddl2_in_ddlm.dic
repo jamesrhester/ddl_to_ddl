@@ -446,6 +446,7 @@ _category_key.name                      	'_dictionary.datablock_id'
 loop_
  _method.purpose
  _method.expression
+ Evaluation
 ;
 loop dd as ddlm|dictionary {
     ddl2|dictionary(.title = dd.title,
@@ -554,17 +555,6 @@ _description.text
 _definition.id                          	'_dictionary_history.version'
 _name.category_id                       	dictionary_history
 _name.object_id                         	version
-
-save_
-
-save_head
-
-_description.text                       	'This category is the parent of all other categories in the dictionary.'
-_definition.class                       	Head
-_definition.id                          	head
-_definition.scope                       	Category
-_name.category_id                       	head
-_name.object_id                         	head
 
 save_
 

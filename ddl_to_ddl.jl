@@ -4,8 +4,14 @@ using CrystalInfoFramework
 using DataContainer
 using CIF_dREL
 
+#
+# There are plain versions to avoid a cycle of derivations pinballing between ddl2
+# and ddlm methods
+#
 const ddl2_trans_dic = DDL2_Dictionary(joinpath(@__DIR__,"ddl2_with_methods.dic"))
 const ddlm_trans_dic = DDLm_Dictionary(joinpath(@__DIR__,"ddlm_from_ddl2.dic"))
+const ddl2_plain_dic = DDL2_Dictionary(joinpath(@__DIR__,"ddl_core_2.1.3.dic"))
+const ddlm_plain_dic = DDLm_Dictionary(joinpath(@__DIR__,"ddl.dic"))
 
 """
 Load a dictionary as a data source.  We return the dictionary interpretation as well
@@ -33,7 +39,10 @@ force_translate(category_holder,to_namespace) = begin
         try
             va = get_category(category_holder,one_cat,to_namespace)
         catch e
-            if e isa KeyError continue end
+            if e isa KeyError
+                println("$e but continuing")
+                continue
+            end
             rethrow()
         end
         println("# Now doing individual items\n")
@@ -57,11 +66,11 @@ end
 prepare_data(input_dict,to_namespace) = begin
     if to_namespace == "ddlm"
         dictype = DDL2_Dictionary
-        att_ref = ddl2_trans_dic
+        att_ref = ddl2_plain_dic
         other_ref = ddlm_trans_dic
     elseif to_namespace == "ddl2"
         dictype = DDLm_Dictionary
-        att_ref = ddlm_trans_dic
+        att_ref = ddlm_plain_dic
         other_ref = ddl2_trans_dic
     end
     dic_datasource,as_dic = load_dictionary_as_data(dictype,input_dict)
@@ -69,6 +78,7 @@ prepare_data(input_dict,to_namespace) = begin
     # add our target dictionary as well
     category_holder.dict[to_namespace] = other_ref 
     category_holder.value_cache[to_namespace] = Dict{String,Any}()
+    category_holder.cat_cache[to_namespace] = Dict{String,CifCategory}()
     return category_holder,as_dic
 end
 

@@ -1,0 +1,176 @@
+#\#CIF_2.0
+##############################################################################
+#                                                                            #
+#                      DDLm Extension DICTIONARY                             #
+#                                                                            #
+#   Additional attributes defined to allow translation of DDL2 dictionaries  #
+#                                                                            #
+#                                                                            #
+##############################################################################
+data_DDL_FOR_DDL2_DIC
+
+    _dictionary.title            DDL_FOR_DDL2_DIC
+    _dictionary.class            Reference
+    _dictionary.version          1.0
+    _dictionary.date             2020-11-30
+    _dictionary.uri              
+             https://raw.githubusercontent.com/COMCIFS/cif_core/cif2-conversion/ddl.dic
+    _dictionary.ddl_conformance  4.0
+    _dictionary.namespace        ddlm
+    _description.text
+;
+     This dictionary contains additional attributes that capture information that
+     is relevant to DDL2-based dictionaries but not essential for DDLm semantics.
+;
+
+save_DDL2_ATTRIBUTES
+
+    _definition.id               DDL2_ATTRIBUTES
+    _definition.scope            Category
+    _definition.class            Head
+    _definition.update           2020-11-30
+    _description.text
+;
+     This category is parent of all other categories in this
+     dictionary.
+;
+    _name.object_id              DDL2_ATTRIBUTES
+    _name.category_id            DDL2_ATTRIBUTES
+    _import.get
+        [{'save':ATTRIBUTES 'file':ddlm_from_ddl2.dic 'mode':Full}]
+
+save_
+
+save_type.ddl2_code
+
+    _definition.id               '_type.ddl2_code'
+    _definition.class            Attribute
+    _definition.update           2020-11-30
+    _description.text
+;
+    The DDL2 type of the data value
+;
+    _name.category_id            type
+    _name.object_id              ddl2_code
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    type.ddl2_code = item_type[type.master_id].code
+;
+
+save_
+
+save_ddl2_regex_type
+
+    _definition.id               DDL2_REGEX_TYPE
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2020-11-30
+    _description.text
+;
+     Restrictions on the text contents of data values
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              DDL2_REGEX_TYPE
+    loop_
+    _category_key.name
+                                 '_ddl2_regex_type.code'
+
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop itl as item_type_list {
+        ddl2_regex_type(.code = itl.code,
+                        .primitive_code = itl.primitive_code,
+                         .construct = itl.construct,
+                         .detail = itl.detail,
+                         .master_id = ddlm|dictionary.title"
+                        )
+    }
+;
+save_
+
+save_ddl2_regex_type.code
+
+    _definition.id               '_ddl2_regex_type.code'
+    _definition.class            Attribute
+    _definition.update           2020-11-30
+    _description.text
+;
+    The code labelling the data value
+;
+    _name.category_id            ddl2_regex_type
+    _name.object_id              code
+    _type.purpose                Key
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_regex_type.primitive_code
+
+    _definition.id               '_ddl2_regex_type.primitive_code'
+    _definition.class            Attribute
+    _definition.update           2020-11-30
+    _description.text
+;
+    The code labelling the data value
+;
+    _name.category_id            ddl2_regex_type
+    _name.object_id              primitive_code
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_regex_type.construct
+
+    _definition.id               '_ddl2_regex_type.construct'
+    _definition.class            Attribute
+    _definition.update           2020-11-30
+    _description.text
+;
+    When a data value can be defined as a pre-determined sequence of 
+    characters, or optional characters, or data names (for which the
+    definition is also available), it is specified as a construction.
+    The rules of construction conform to the the regular expression
+    (REGEX) specifications detailed in the IEEE document P1003.2
+    Draft 11.2 Sept 1991.
+;
+    _name.category_id            ddl2_regex_type
+    _name.object_id              construct
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+save_
+
+save_ddl2_regex_type.detail
+
+    _definition.id               '_ddl2_regex_type.detail'
+    _definition.class            Attribute
+    _definition.update           2020-11-30
+    _description.text
+;
+    An optional description of the construction.
+;
+    _name.category_id            ddl2_regex_type
+    _name.object_id              detail
+    _type.purpose                Describe
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+save_

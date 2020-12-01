@@ -9,9 +9,8 @@ using CIF_dREL
 # and ddlm methods
 #
 const ddl2_trans_dic = DDL2_Dictionary(joinpath(@__DIR__,"ddl2_with_methods.dic"))
-const ddlm_trans_dic = DDLm_Dictionary(joinpath(@__DIR__,"ddlm_from_ddl2.dic"))
+const ddlm_trans_dic = DDLm_Dictionary(joinpath(@__DIR__,"ddl2_extra_ddlm.dic"))
 const ddl2_plain_dic = DDL2_Dictionary(joinpath(@__DIR__,"ddl_core_2.1.3.dic"))
-const ddlm_plain_dic = DDLm_Dictionary(joinpath(@__DIR__,"ddl.dic"))
 
 """
 Load a dictionary as a data source.  We return the dictionary interpretation as well
@@ -70,7 +69,8 @@ prepare_data(input_dict,to_namespace) = begin
         other_ref = ddlm_trans_dic
     elseif to_namespace == "ddl2"
         dictype = DDLm_Dictionary
-        att_ref = ddlm_plain_dic
+        remove_methods!(ddlm_trans_dic)
+        att_ref = ddlm_trans_dic
         other_ref = ddl2_trans_dic
     end
     dic_datasource,as_dic = load_dictionary_as_data(dictype,input_dict)

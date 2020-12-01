@@ -380,6 +380,7 @@ save_DATABLOCK
     _category_group.category_id
          'ddl_group'                     datablock
          'datablock_group'               datablock
+    _category_methods.method_id          datablock
      save_
 
 
@@ -537,6 +538,7 @@ save__category.description
  
     _item_type.name                    '_category.description'
     _item_type.code                      text
+    _item_methods.method_id             category.description
      save_
 
 save__category.implicit_key
@@ -2275,6 +2277,8 @@ save_ITEM_TYPE_LIST
     _category_group.category_id
          'ddl_group'                     item_type_list
          'item_group'                    item_type_list
+    _category_methods.method_id          item_type_list
+
      save_
 
 save__item_type_list.code
@@ -3137,6 +3141,15 @@ _method_list.id
 _method_list.code
 _method_list.language
 _method_list.inline
+datablock calculation dREL
+;
+   loop d as description {
+       if (d.master_id == ddlm|dictionary.title)
+           datablock(.id = ddlm|dictionary.title,
+                     .description = d.text
+                     )
+           }
+;
 category calculation dREL
 ;
     loop d as definition {
@@ -3146,7 +3159,7 @@ category calculation dREL
                     }
 ;
 
-category_description calculation dREL
+category.description calculation dREL
 ;
     category.description = description[category.id].text
 ;
@@ -3188,9 +3201,9 @@ dictionary_history calculation dREL
 ;
     loop da as dictionary_audit {
         _dictionary_history(.version = da.version,
-                          .update    = da.update,
+                          .update    = da.date,
                           .revision = da.revision,
-                          .master_id = "ddl_trans_dic"
+                          .master_id = ddlm|dictionary.title
                           )
     }
 ;
@@ -3235,6 +3248,7 @@ item_description calculation dREL
 ;
     loop d as description {
         dummy = println(d.master_id)
+        if (d.master_id == ddlm|dictionary.title) next
         if (definition[d.master_id].scope == "Item") {
             item_description(.name = d.master_id,
                              .description = d.text)
@@ -3245,7 +3259,7 @@ item_description calculation dREL
 item_enumeration calculation dREL
 ;
 loop es as enumeration_set {
-    item_enumeration(.name = es.name,
+    item_enumeration(.name = es.master_id,
                      .value = es.state,
                      .detail = es.detail
                      )
@@ -3254,7 +3268,7 @@ loop es as enumeration_set {
 
 item_examples calculation dREL
 ;
-loop de as description_examples {
+loop de as description_example {
     if (definition[de.master_id].scope == 'Item') {
         item_examples(.name = de.master_id,
                       .case = de.case,
@@ -3306,14 +3320,19 @@ loop e as enumeration {
 item_type calculation dREL
 ;
 loop t as type {
-    contents = 'text'
-    if (t.contents == 'Code') contents = 'code'
     item_type(.name = t.master_id,
-              .code = contents
+              .code = t.ddl2_code
               )
     }
 ;
 
 item_type_list calculation dREL
 ;
+loop drt as ddl2_regex_type {
+    item_type_list(.code = drt.code,
+                   .primitive_code = drt.primitive_code,
+                   .construct = drt.construct,
+                   .detail = drt.detail
+                   )
+}
 ;

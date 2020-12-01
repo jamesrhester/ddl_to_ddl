@@ -5,7 +5,7 @@ const ddl2_ref_dic = DDL2_Dictionary("ddl2_with_methods.dic")
 #
 # The DDL2 categories that we care about
 #
-const ddl2_test_categories = [:item_range,:item_default,:item,
+const ddl2_test_categories = (:item_range,:item_default,:item,
                               :category,:category_key,
                               :dictionary_history,
                               :item_type,
@@ -13,11 +13,13 @@ const ddl2_test_categories = [:item_range,:item_default,:item,
                               :item_examples,
                               :item_enumeration,
                               :item_description,
-                              :item_aliases,
                               :dictionary,
                               :category_examples,
-                              :category_description
-                              ]
+                              :category_description,
+                              :item_type_list
+                              )
+const ddl2_ignore = ((:item,:mandatory_code),(:category,:nx_mapping_details),
+                     (:category,:mandatory_code))
 #
 # Find definitions that are present in one and not the other
 #
@@ -42,13 +44,14 @@ report_missing_attrs(defa,defb,name,cat) = begin
                 println("$cat has different number of rows for $name")
             end
             # check columns
+            ignorance = [String(x[end]) for x in ddl2_ignore if first(x) == cat]
             anames = names(adef)
             bnames = names(bdef)
-            do_not_have = setdiff(anames,bnames,["master_id","__object_id","__blockname"])
+            do_not_have = setdiff(anames,bnames,ignorance,["master_id","__object_id","__blockname"])
             if length(do_not_have) > 0
                 println("$name: missing $do_not_have")
             end
-            common = intersect(anames,bnames)
+            common = setdiff(intersect(anames,bnames),ignorance,["master_id","__object_id","__blockname"])
             # println("$cat")
             # loop and check values
             catkeys = get_keys_for_cat(ddl2_ref_dic,cat)
@@ -84,7 +87,9 @@ report_diffs(source_lang,dics) = begin
         dica,dicb = DDLm_Dictionary.(dics)
     end
     difa,_ = find_missing_defs(dica,dicb)
-    println("Warning: missing definitions for $difa")
+    if length(difa) > 0
+        println("Warning: missing definitions for $difa")
+    end
     for one_def in sort(collect(keys(dica)))
         println("\n#=== $one_def ===#\n")
         if one_def in difa

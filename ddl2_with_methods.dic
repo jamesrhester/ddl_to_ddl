@@ -3154,8 +3154,7 @@ category calculation dREL
 ;
     loop d as definition {
        if (d.scope == "Category" and d.class == "Loop")
-           ddl2|category(.master_id = d.id,
-                         .id        = d.id)
+           ddl2|category(.id        = d.id)
                     }
 ;
 

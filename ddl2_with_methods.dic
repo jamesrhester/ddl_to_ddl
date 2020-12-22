@@ -3144,8 +3144,8 @@ _method_list.inline
 datablock calculation dREL
 ;
    loop d as description {
-       if (d.master_id == ddlm|dictionary.title)
-           datablock(.id = ddlm|dictionary.title,
+       if (d.master_id == ddlm::dictionary.title)
+           datablock(.id = ddlm::dictionary.title,
                      .description = d.text
                      )
            }
@@ -3154,7 +3154,7 @@ category calculation dREL
 ;
     loop d as definition {
        if (d.scope == "Category" and d.class == "Loop")
-           ddl2|category(.id        = d.id)
+           ddl2::category(.id        = d.id)
                     }
 ;
 
@@ -3182,15 +3182,15 @@ category_examples.detail calculation dREL
 
 category_key calculation dREL
 ;
-loop c as ddlm|category_key
-ddl2|category_key(.id = c.master_id,
+loop c as ddlm::category_key
+ddl2::category_key(.id = c.master_id,
                   .name = c.name)
 ;
 
 dictionary calculation dREL
 ;
-with dd as ddlm|dictionary
-     ddl2|dictionary(.title = dd.title,
+with dd as ddlm::dictionary
+     ddl2::dictionary(.title = dd.title,
                     .version = dd.version,
                     .datablock_id = dd.title
                     )
@@ -3202,7 +3202,7 @@ dictionary_history calculation dREL
         _dictionary_history(.version = da.version,
                           .update    = da.date,
                           .revision = da.revision,
-                          .master_id = ddlm|dictionary.title
+                          .master_id = ddlm::dictionary.title
                           )
     }
 ;
@@ -3247,7 +3247,7 @@ item_description calculation dREL
 ;
     loop d as description {
         dummy = println(d.master_id)
-        if (d.master_id == ddlm|dictionary.title) next
+        if (d.master_id == ddlm::dictionary.title) next
         if (definition[d.master_id].scope == "Item") {
             item_description(.name = d.master_id,
                              .description = d.text)

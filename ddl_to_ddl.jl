@@ -1,8 +1,8 @@
 # A program to translate the imgCIF dictionary to DDLm
 
 using CrystalInfoFramework
-using DataContainer
-using CIF_dREL
+using CrystalInfoFramework.DataContainer
+using DrelTools
 
 #
 # There are plain versions to avoid a cycle of derivations pinballing between ddl2

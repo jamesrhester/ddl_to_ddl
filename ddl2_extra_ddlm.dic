@@ -92,7 +92,7 @@ save_ddl2_regex_type
                         .primitive_code = itl.primitive_code,
                          .construct = itl.construct,
                          .detail = itl.detail,
-                         .master_id = ddlm|dictionary.title"
+                         .master_id = ddlm::dictionary.title"
                         )
     }
 ;

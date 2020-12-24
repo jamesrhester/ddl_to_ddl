@@ -1,4 +1,4 @@
-# CIF dictionary convertor
+# CIF dictionary converter
 
 ## Introduction
 

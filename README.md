@@ -1,4 +1,4 @@
-# CIF dictionary convertor
+# CIF dictionary converter
 
 ## Introduction
 
@@ -25,11 +25,23 @@ Pkg.add("DrelTools")
 ## Usage
 
 From the command line, and located in the distribution directory copied above, run:
-```julia ddl_to_ddl.jl <source_ddl> <source_dictionary>```
+```
+julia ddl_to_ddl.jl <source_dictionary> <source_ddl>
+```
 
 This will convert `<source_dictionary>` written in DDL variant `<source_ddl>`
 (which must be either `ddl2` or `ddlm`) to a version written in the other variant. The
-new dictionary will have `to_<target_ddl>.dic` appended.
+new dictionary will have `to_<target_ddl>.dic` appended. Note that this conversion is currently
+*very slow* (several minutes for the imgCIF dictionary).
+
+Program `compare.jl` is also included. This compares two DDL2 dictionaries to find
+differences:
+
+```
+julia compare.jl <ddl> <first_dictionary> <second_dictionary>
+```
+
+where `<ddl>` is `ddl2` (DDLm not yet supported).
 
 ## How it works
 

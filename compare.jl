@@ -7,19 +7,26 @@ const ddl2_ref_dic = DDL2_Dictionary("ddl2_with_methods.dic")
 #
 const ddl2_test_categories = (:item_range,:item_default,:item,
                               :category,:category_key,
+                              :category_group_list,
+                              :sub_category,
                               :dictionary_history,
                               :item_type,
                               :item_linked,
                               :item_examples,
                               :item_enumeration,
                               :item_description,
+                              :item_range,
+                              :item_units,
+                              :item_sub_category,
+                              :item_units_list,
                               :dictionary,
                               :category_examples,
                               :category_description,
                               :item_type_list
                               )
-const ddl2_ignore = ((:item,:mandatory_code),(:category,:nx_mapping_details),
-                     (:category,:mandatory_code))
+const ddl2_ignore = ()
+#    ((:item,:mandatory_code),(:category,:nx_mapping_details),
+#                     (:category,:mandatory_code))
 #
 # Find definitions that are present in one and not the other
 #

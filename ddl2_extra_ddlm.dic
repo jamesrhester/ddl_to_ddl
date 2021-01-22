@@ -11,8 +11,8 @@ data_DDL_FOR_DDL2_DIC
 
     _dictionary.title            DDL_FOR_DDL2_DIC
     _dictionary.class            Reference
-    _dictionary.version          1.0
-    _dictionary.date             2020-11-30
+    _dictionary.version          1.1
+    _dictionary.date             2021-01-06
     _dictionary.uri              
              https://raw.githubusercontent.com/COMCIFS/cif_core/cif2-conversion/ddl.dic
     _dictionary.ddl_conformance  4.0
@@ -41,28 +41,175 @@ save_DDL2_ATTRIBUTES
 
 save_
 
-save_type.ddl2_code
-
-    _definition.id               '_type.ddl2_code'
-    _definition.class            Attribute
-    _definition.update           2020-11-30
+save_ddl2_sub_category
+    _definition.id               'ddl2_sub_category'
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2021-01-06
     _description.text
 ;
-    The DDL2 type of the data value
+    The DDL2 sub categories of the data value
 ;
-    _name.category_id            type
-    _name.object_id              ddl2_code
-    _type.purpose                Encode
-    _type.source                 Assigned
-    _type.container              Single
-    _type.contents               Code
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              ddl2_sub_category
+    _category_key.name           '_ddl2_sub_category.id'
     loop_
     _method.purpose
     _method.expression
     Evaluation
 ;
-    type.ddl2_code = item_type[type.master_id].code
+    loop isc as item_sub_category {
+        ddl2_sub_category(.master_id = isc.name,
+                          .id        = isc.id)
+        }
 ;
+
+save_
+
+save_ddl2_sub_category.id
+
+    _definition.id               '_ddl2_sub_category.id'
+    _definition.class            Attribute
+    _definition.update           2021-01-06
+    _description.text
+;
+    An identifier for a sub category.
+;
+    _name.category_id            ddl2_sub_category
+    _name.object_id              id
+    _name.linked_item_id         ddl2_sub_category_list.id
+    _type.purpose                Key
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_sub_category.name
+
+    _definition.id               '_ddl2_sub_category.name'
+    _definition.class            Attribute
+    _definition.update           2021-01-06
+    _description.text
+;
+    The name of the data item assigned to a sub category.
+;
+    _name.category_id            ddl2_sub_category
+    _name.object_id              name
+    _name.linked_item_id         '_definition.id'
+    _type.purpose                Key
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_sub_category_list
+
+    _definition.id               'ddl2_sub_category_list'
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2021-01-15
+    _description.text
+;
+    The list of defined DDL2 sub categories
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              ddl2_sub_category_list
+    _category_key.name           '_ddl2_sub_category_list.id'
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop sc as sub_category {
+        ddl2_sub_category_list(.master_id = ddlm::dictionary.title,
+                               .id        = sc.id,
+                               .description = sc.description)
+        }
+;
+
+save_
+
+save_ddl2_sub_category_list.id
+
+    _definition.id               '_ddl2_sub_category_list.id'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    An identifier for a sub category.
+;
+    _name.category_id            ddl2_sub_category_list
+    _name.object_id              id
+    _type.purpose                Key
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_sub_category_list.description
+
+    _definition.id               '_ddl2_sub_category_list.description'
+    _definition.class            Attribute
+    _definition.update           2021-01-06
+    _description.text
+;
+    The description of the DDL2 sub category.
+;
+    _name.category_id            ddl2_sub_category_list
+    _name.object_id              description
+    _type.purpose                Describe
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+save_
+
+save_ddl2_category_group
+
+    _definition.id               DDL2_CATEGORY_GROUP
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2021-01-06
+    _description.text
+;
+    Data names for allocating categories into groups
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              ddl2_category_group
+    _category_key.name           '_ddl2_category_group.id'
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop cg as category_group {
+        ddl2_category_group(.master_id = cg.category_id,
+                            .id = cg.id
+                           )
+    }
+;
+
+save_
+
+save_ddl2_category_group.id
+
+    _definition.id               '_ddl2_category_group.id'
+    _definition.class            Attribute
+    _definition.update           2021-01-06
+    _description.text
+;
+    A category group to which this category belongs
+;
+    _name.category_id            ddl2_category_group
+    _name.object_id              id
+    _name.linked_item_id         ddl2_category_group_list.id
+    _type.purpose                Key
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
 
 save_
 
@@ -172,5 +319,369 @@ save_ddl2_regex_type.detail
     _type.source                 Assigned
     _type.container              Single
     _type.contents               Text
+
+save_
+
+save_type.ddl2_code
+
+    _definition.id               '_type.ddl2_code'
+    _definition.class            Attribute
+    _definition.update           2020-11-30
+    _description.text
+;
+    The DDL2 type of the data value
+;
+    _name.category_id            type
+    _name.object_id              ddl2_code
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    type.ddl2_code = item_type[type.master_id].code
+;
+
+save_
+
+save_ddl2_category_group_list
+
+    _definition.id               DDL2_CATEGORY_GROUP_LIST
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2021-01-06
+    _description.text
+;
+     The DDL2 category group that this category belongs to.
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              ddl2_category_group_list
+    loop_
+    _category_key.name
+                                 '_ddl2_category_group_list.id'
+
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop cgl as category_group_list {
+        ddl2_category_group_list(.id = cgl.id,
+                                 .parent_id = cgl.parent_id,
+                                 .description = cgl.description,
+                                 .master_id = ddlm::dictionary.title
+                        )
+    }
+;
+save_
+
+save_ddl2_category_group_list.description
+
+    _definition.id               '_ddl2_category_group_list.description'
+    _definition.class            Attribute
+    _definition.update           2021-01-06
+    _description.text
+;
+    A description of the category group
+;
+    _name.category_id            ddl2_category_group_list
+    _name.object_id              description
+    _type.purpose                Describe
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+save_
+
+save_ddl2_category_group_list.id
+
+    _definition.id               '_ddl2_category_group_list.id'
+    _definition.class            Attribute
+    _definition.update           2021-01-06
+    _description.text
+;
+    An identifier for the category group
+;
+    _name.category_id            ddl2_category_group_list
+    _name.object_id              id
+    _type.purpose                Key
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_category_group_list.parent_id
+
+    _definition.id               '_ddl2_category_group_list.parent_id'
+    _definition.class            Attribute
+    _definition.update           2021-01-06
+    _description.text
+;
+    An optional parent category group
+;
+    _name.category_id            ddl2_category_group_list
+    _name.object_id              parent_id
+    _name.linked_item_id         '_ddl2_category_group_list.id'
+    _type.purpose                Link
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+save_
+
+
+save_ddl2_units_list
+
+    _definition.id               DDL2_UNITS_LIST
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2021-01-15
+    _description.text
+;
+     A category listing all possible units of measurement
+     for items in a DDL2 dictionary
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              DDL2_UNITS_LIST
+    loop_
+    _category_key.name
+                                 '_ddl2_units_list.code'
+
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop iul as item_units_list {
+        ddl2_units_list(.code = iul.code,
+                         .detail = iul.detail,
+                         .master_id = ddlm::dictionary.title"
+                        )
+    }
+;
+save_
+
+save_ddl2_units_list.code
+
+    _definition.id               '_ddl2_units_list.code'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    The code labelling the data value
+;
+    _name.category_id            ddl2_units_list
+    _name.object_id              code
+    _type.purpose                Key
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_units_list.detail
+
+    _definition.id               '_ddl2_units_list.detail'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    A description of the units.
+;
+    _name.category_id            ddl2_units_list
+    _name.object_id              detail
+    _type.purpose                Describe
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+save_
+
+save_type.ddl2_units
+
+    _definition.id               '_type.ddl2_units'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    The DDL2 units used for the data value
+;
+    _name.category_id            type
+    _name.object_id              ddl2_units
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    type.ddl2_units = item_units[type.master_id].code
+;
+
+save_
+
+save_nx_mapping
+
+    _definition.id               NX_MAPPING
+    _definition.scope            Category
+    _definition.class            Set
+    _definition.update           2021-01-15
+    _description.text
+;
+     Data names for describing the way in which category
+     data names are mapped to the NeXus standard. 
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              NX_MAPPING
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop c as ddl2::category {
+        nx_mapping(.master_id = c.id,
+                   .details = c.nx_mapping_details)
+    }
+;
+save_
+
+save_nx_mapping.details
+
+    _definition.id               '_nx_mapping.details'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    The way in which items in this category are mapped
+    to NeXus data items.
+;
+    _name.category_id            nx_mapping
+    _name.object_id              details
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    nx_mapping.details = ddl2::category[nx_mapping.master_id].nx_mapping_details
+;
+
+save_
+
+save_name.ddl2_mandatory
+
+    _definition.id               '_name.ddl2_mandatory'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    Whether the category or item must be specified in a dictionary
+;
+    _name.category_id            name
+    _name.object_id              ddl2_mandatory
+    _type.purpose                State
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+    loop_
+        _enumeration_set.state
+        Yes
+        No
+        Implicit
+        
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    if (definition[name.master_id].scope == 'Category')
+        name.ddl2_mandatory = ddl2::category[name.master_id].mandatory_code
+    else
+        name.ddl2_mandatory = item[name.master_id].mandatory_code
+;
+
+save_
+
+save_ddl2_enumeration_range
+
+    _definition.id               ddl2_enumeration_range
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2021-01-15
+    _description.text
+;
+     A copy of the DDL2 enumeration_range category. DDL2
+     can specify multiple, potentially-overlapping ranges
+     which may be either exclusive or inclusive. Where a
+     single inclusive range is specified the DDLm
+     enumeration.range item is populated accordingly.
+     Where the maximum and minimum are
+     different the range is exclusive. Where they are the
+     same previously-specified ranges are include the
+     specified value.
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              DDL2_ENUMERATION_RANGE
+    loop_
+       _category_key.name
+       '_ddl2_enumeration_range.maximum'
+       '_ddl2_enumeration_range.minimum'
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop ir as item_range {
+        ddl2_enumeration_range(.master_id = ir.name,
+                               .maximum = ir.maximum,
+                               .minimum = ir.minimum)
+    }
+;
+save_
+
+save_ddl2_enumeration_range.maximum
+
+    _definition.id               '_ddl2_enumeration_range.maximum'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    A maximum value for the range.
+;
+    _name.category_id            ddl2_enumeration_range
+    _name.object_id              maximum
+    _type.purpose                Number
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+
+save_
+
+save_ddl2_enumeration_range.minimum
+
+    _definition.id               '_ddl2_enumeration_range.minimum'
+    _definition.class            Attribute
+    _definition.update           2021-01-15
+    _description.text
+;
+    A maximum value for the range.
+;
+    _name.category_id            ddl2_enumeration_range
+    _name.object_id              minimum
+    _type.purpose                Number
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
 
 save_

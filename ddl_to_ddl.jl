@@ -65,7 +65,7 @@ end
 prepare_data(input_dict,to_namespace) = begin
     if to_namespace == "ddlm"
         dictype = DDL2_Dictionary
-        att_ref = ddl2_plain_dic
+        att_ref = ddl2_trans_dic
         other_ref = ddlm_trans_dic
     elseif to_namespace == "ddl2"
         dictype = DDLm_Dictionary

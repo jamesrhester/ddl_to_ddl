@@ -567,13 +567,12 @@ save__category.mandatory_code
 ;
     _item.name                         '_category.mandatory_code'     
     _item.category_id                    category
-    _item.mandatory_code                 yes 
+    _item.mandatory_code                 yes
+    _item_methods.method_id            category.mandatory_code
 
     _item_type.name                    '_category.mandatory_code'
     _item_type.code                      code
      save_
-
-
 
 
 # ----------------------------------------------------------------------------
@@ -732,6 +731,7 @@ save_CATEGORY_GROUP
     _category_group.category_id
          'ddl_group'                     category_group
          'category_group'                category_group
+    _category_method.method_id           category_group
     save_
 
 save__category_group.id
@@ -787,6 +787,7 @@ save_CATEGORY_GROUP_LIST
     _category_group.category_id
          'ddl_group'                     category_group_list
          'category_group'                category_group_list
+    _category_methods.method_id          category_group_list
     save_
 
 save__category_group_list.id
@@ -919,6 +920,7 @@ save_SUB_CATEGORY
     _category_group.category_id
          'ddl_group'                     sub_category
          'sub_category_group'            sub_category
+    _category_methods.method_id           sub_category
      save_
 
 
@@ -2096,6 +2098,7 @@ save_ITEM_SUB_CATEGORY
     _category_group.category_id
          'sub_category_group'            item_sub_category
          'item_group'                    item_sub_category
+    _category_methods.method_id          item_sub_category
      save_
 
 save__item_sub_category.name
@@ -2385,6 +2388,7 @@ save_ITEM_UNITS
     _category_group.category_id
          'ddl_group'                     item_units
          'item_group'                    item_units
+    _category_methods.method_id          item_units
      save_
 
 save__item_units.name
@@ -2536,6 +2540,7 @@ save_ITEM_UNITS_LIST
     _category_group.category_id
          'ddl_group'                     item_units_list
          'item_group'                    item_units_list
+    _category_methods.method_id          item_units_list
      save_
 
 save__item_units_list.code
@@ -3132,6 +3137,26 @@ save__ndb_item_examples.name
 
 #### EOF mmcif_ddl-def-2.dic 
 
+#### NX mapping
+
+# Does not exist in official DDL2, these definitions interim
+
+save__category.nx_mapping_details
+
+    _item_description.name             '_category.nx_mapping_details'
+    _item_description.description
+;
+     Machine-readable description of mapping between items in this
+     category and the NeXus MX standard.
+;
+    _item.name                         '_category.nx_mapping_details'   
+    _item.category_id                    category
+ 
+    _item_type.name                    '_category.nx_mapping_details'
+    _item_type.code                      text
+    _item_methods.method_id             category.nx_mapping_details
+     save_
+
 #
 # List of methods for concatenation with DDL2 dictionary
 #
@@ -3161,6 +3186,35 @@ category calculation dREL
 category.description calculation dREL
 ;
     category.description = description[category.id].text
+;
+
+category.nx_mapping_details calculation dREL
+;
+    category.nx_mapping_details = nx_mapping[category.id].details
+;
+
+category.mandatory_code calculation dREL
+;
+    category.mandatory_code = name[category.id].ddl2_mandatory
+;
+
+category_group calculation dREL
+;
+    loop dcg as ddl2_category_group {
+        category_group(.category_id = dcg.master_id,
+                       .id          = dcg.id
+                       )
+    }
+;
+
+category_group_list calculation dREL
+;
+    loop dcgl as ddl2_category_group_list {
+        category_group_list(.id = dcgl.id,
+                            .parent_id = dcgl.parent_id,
+                            .description  = dcgl.description
+                            )
+    }
 ;
 
 category_examples calculation dREL
@@ -3210,7 +3264,8 @@ dictionary_history calculation dREL
 item calculation dREL
 ;
   loop n as name {
-      item(.name = n.master_id)
+      item(.name           = n.master_id,
+           .mandatory_code = n.ddl2_mandatory)
   }
 ;
 
@@ -3288,31 +3343,50 @@ loop n as name {
     }
 ;
 
+#item_range calculation dREL
+#;
+#loop e as enumeration {
+#    if (not is_missing(e.range)) {
+#    min,max = split(e.range,":")
+#    if(min == "") min = NULL
+#    if(max == "") max = NULL
+#    item_range(.name = e.master_id,
+#               .minimum = min,
+#               .maximum = max
+#               )
+#    # and the upper/lower bounds
+#    if (min != NULL) {
+#    item_range(.name = e.master_id,
+#               .minimum = min,
+#               .maximum = min
+#               )
+#               }
+#    if (max != NULL) {
+#    item_range(.name = e.master_id,
+#               .minimum = max,
+#               .maximum = max
+#               )
+#               }
+#        }
+#}
+#;
+
 item_range calculation dREL
 ;
-loop e as enumeration {
-    if (not is_missing(e.range)) {
-    min,max = split(e.range,":")
-    if(min == "") min = NULL
-    if(max == "") max = NULL
-    item_range(.name = e.master_id,
-               .minimum = min,
-               .maximum = max
+loop der as ddl2_enumeration_range {
+    item_range(.name = der.master_id,
+               .minimum = der.minimum,
+               .maximum = der.maximum
                )
-    # and the upper/lower bounds
-    if (min != NULL) {
-    item_range(.name = e.master_id,
-               .minimum = min,
-               .maximum = min
+}
+;
+
+item_sub_category calculation dREL
+;
+loop isc as ddl2_sub_category {
+    item_sub_category(.name = isc.master_id,
+               .id = isc.id
                )
-               }
-    if (max != NULL) {
-    item_range(.name = e.master_id,
-               .minimum = max,
-               .maximum = max
-               )
-               }
-        }
 }
 ;
 
@@ -3334,4 +3408,31 @@ loop drt as ddl2_regex_type {
                    .detail = drt.detail
                    )
 }
+;
+
+item_units calculation dREL
+;
+loop t as type {
+    item_units(.name = t.master_id,
+              .code = t.ddl2_units
+              )
+    }
+;
+
+item_units_list calculation dREL
+;
+loop iul as ddl2_units_list {
+    item_units_list(.code = iul.code,
+                   .detail = iul.detail
+                   )
+}
+;
+
+sub_category calculation dREL
+;
+    loop dscl as ddl2_sub_category_list {
+        sub_category(.id = dscl.id,
+                     .description = dscl.description
+                    )
+    }
 ;

@@ -47,37 +47,43 @@ report_missing_attrs(defa,defb,name,cat) = begin
         adef = defa[cat]
         if haskey(defb,cat)
             bdef = defb[cat]
-            if nrow(adef) != nrow(bdef)
-                println("$cat has different number of rows for $name")
-            end
-            # check columns
-            ignorance = [String(x[end]) for x in ddl2_ignore if first(x) == cat]
-            anames = names(adef)
-            bnames = names(bdef)
-            do_not_have = setdiff(anames,bnames,ignorance,["master_id","__object_id","__blockname"])
-            if length(do_not_have) > 0
-                println("$name: missing $do_not_have")
-            end
-            common = setdiff(intersect(anames,bnames),ignorance,["master_id","__object_id","__blockname"])
-            # println("$cat")
-            # loop and check values
-            catkeys = get_keys_for_cat(ddl2_ref_dic,cat)
-            catobjs = Symbol.([find_object(ddl2_ref_dic,x) for x in catkeys])
-            nonmatch = check_matching_rows(adef,bdef,catobjs)
-            if nrow(nonmatch) > 0
-                println("The following rows do not have matching keys for $cat:")
-                println("$nonmatch")
-            end
-            # now check all
-            nonmatch = check_matching_rows(adef,bdef,common)
-            if nrow(nonmatch) > 0
-                println("The following rows have at least one mismatched value for $cat:")
-                println("$nonmatch")
-            end
+            compare_loops(adef,bdef,name,cat)
         else
             println("$cat is missing from $name in second dictionary")
             println("First dictionary has $adef")
         end
+        
+    end
+end
+
+compare_loops(loop1,loop2,name,cat) = begin
+    
+    if nrow(loop1) != nrow(loop2)
+        println("$cat has different number of rows for $name")
+    end
+    # check columns
+    ignorance = [String(x[end]) for x in ddl2_ignore if first(x) == cat]
+    anames = names(loop1)
+    bnames = names(loop2)
+    do_not_have = setdiff(anames,bnames,ignorance,["master_id","__object_id","__blockname"])
+    if length(do_not_have) > 0
+        println("$name: missing $do_not_have")
+    end
+    common = setdiff(intersect(anames,bnames),ignorance,["master_id","__object_id","__blockname"])
+    # println("$cat")
+    # loop and check values
+    catkeys = get_keys_for_cat(ddl2_ref_dic,cat)
+    catobjs = Symbol.([find_object(ddl2_ref_dic,x) for x in catkeys])
+    nonmatch = check_matching_rows(loop1,loop2,catobjs)
+    if nrow(nonmatch) > 0
+        println("The following rows do not have matching keys for $cat:")
+        println("$nonmatch")
+    end
+    # now check all
+    nonmatch = check_matching_rows(loop1,loop2,common)
+    if nrow(nonmatch) > 0
+        println("The following rows have at least one mismatched value for $cat:")
+        println("$nonmatch")
     end
 end
 
@@ -109,6 +115,18 @@ report_diffs(source_lang,dics) = begin
             report_missing_attrs(defa,defb,one_def,one_cat)
         end
     end
+    # Check top level
+    toplevela = get_toplevel_cats(dica)
+    toplevelb = get_toplevel_cats(dicb)
+    for one_cat in toplevela
+        println("\n#=== $one_cat ===#\n")
+        if !(one_cat in toplevelb)
+            println("$one_cat is missing from second dictionary")
+            continue
+        end
+        compare_loops(dica[one_cat],dicb[one_cat],"toplevel",one_cat)
+    end
+        
 end
 
 if abspath(PROGRAM_FILE) == @__FILE__

@@ -17,15 +17,11 @@ Load a dictionary as a data source.  We return the dictionary interpretation as 
 to make use of high-level information
 """
 load_dictionary_as_data(::Type{DDL2_Dictionary}, filename) = begin
-    #c = MultiDataSource(NativeCif(filename))
-    #TypedDataSource(c,ddl2_atts),DDL2_Dictionary(filename)
     ddl2dic = DDL2_Dictionary(filename)
     return TypedDataSource(as_data(ddl2dic),ddl2_trans_dic),ddl2dic
 end    
 
 load_dictionary_as_data(::Type{DDLm_Dictionary}, filename) = begin
-    #c = MultiDataSource(NativeCif(filename))
-    #TypedDataSource(c,ddl2_atts),DDL2_Dictionary(filename)
     ddlmdic = DDLm_Dictionary(filename)
     return TypedDataSource(as_data(ddlmdic),ddlm_trans_dic),ddlmdic
 end    
@@ -65,7 +61,7 @@ end
 prepare_data(input_dict,to_namespace) = begin
     if to_namespace == "ddlm"
         dictype = DDL2_Dictionary
-        att_ref = ddl2_trans_dic
+        att_ref = ddl2_plain_dic
         other_ref = ddlm_trans_dic
     elseif to_namespace == "ddl2"
         dictype = DDLm_Dictionary

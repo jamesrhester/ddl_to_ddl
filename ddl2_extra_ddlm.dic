@@ -239,7 +239,7 @@ save_ddl2_regex_type
                         .primitive_code = itl.primitive_code,
                          .construct = itl.construct,
                          .detail = itl.detail,
-                         .master_id = ddlm::dictionary.title"
+                         .master_id = ddlm::dictionary.title
                         )
     }
 ;
@@ -459,7 +459,7 @@ save_ddl2_units_list
     loop iul as item_units_list {
         ddl2_units_list(.code = iul.code,
                          .detail = iul.detail,
-                         .master_id = ddlm::dictionary.title"
+                         .master_id = ddlm::dictionary.title
                         )
     }
 ;
@@ -628,7 +628,7 @@ save_ddl2_enumeration_range
      enumeration.range item is populated accordingly.
      Where the maximum and minimum are
      different the range is exclusive. Where they are the
-     same previously-specified ranges are include the
+     same previously-specified ranges include the
      specified value.
 ;
     _name.category_id            DDL2_ATTRIBUTES
@@ -664,7 +664,7 @@ save_ddl2_enumeration_range.maximum
     _type.purpose                Number
     _type.source                 Assigned
     _type.container              Single
-    _type.contents               Code
+    _type.contents               Text
 
 save_
 
@@ -682,6 +682,6 @@ save_ddl2_enumeration_range.minimum
     _type.purpose                Number
     _type.source                 Assigned
     _type.container              Single
-    _type.contents               Code
+    _type.contents               Text
 
 save_

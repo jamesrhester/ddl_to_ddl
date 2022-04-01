@@ -1292,9 +1292,92 @@ loop_
   _method.expression
   Evaluation
 ;
-   loop id as item {
-       enumeration(.master_id = id.name)
+   all_names = List()
+   maxes = List()
+   mins = List()
+   incl_max = List()
+   incl_min = List()
+   ranges = List()
+   defaults = List()
+
+   # DDL2 rules: identical max,min = inclusive limit, otherwise
+   # exclusive. "." is open-ended. Multiple lines possible to
+   # indicate this. Loop over ir twice to find actual bounds
+   
+   loop ir as item_range {
+       if (ir.name not in all_names) {
+           # First time
+           all_names ++= ir.name
+           incl_top = 0
+           incl_bot = 0
+           maxes ++= ir.maximum
+           mins ++= ir.minimum
+           incl_max ++= 0
+           incl_min ++= 0
+           defaults ++= ?
+           }
+       else {
+           yloc = indexin(all_names,ir.name)
+           if (ir.minimum != ir.maximum) {
+               maxes[yloc] = ir.maximum
+               mins[yloc] = ir.minimum
+               }
+       }
    }
+
+   # Now we have the bounds, find inclusive ones
+   
+   loop ir as item_range {
+       yloc = indexin(all_names,ir.name)
+       new_max = ir.maximum
+       new_min = ir.minimum
+       if (new_max == new_min) { #Have bounds
+           if (new_max == maxes[yloc]) {#upper incl
+               incl_max[yloc] = 1
+               }
+           if (new_min == mins[yloc]) {#lower incl
+               incl_min[yloc] = 1
+           }
+       }
+    }
+
+    # Now construct the ranges
+
+    do i = 0,len(all_names)-1 {
+       if (maxes[i] == NULL) {
+           top_str = ""
+           incl_max[i] = 1
+           } else top_str = repr(maxes[i])
+       if (mins[i] == NULL) {
+           bot_str = ""
+           incl_min[i] = 1
+           } else bot_str = repr(mins[i])
+       if (incl_min[i] == 1 && incl_max[i] == 1) {
+           ranges ++= bot_str + ":" + top_str
+           }
+           else ranges ++= ?
+       }
+
+    # And defaults
+
+    loop id as item_default {
+        yloc = indexin(all_names,id.name)
+        if (yloc == -1) {
+            all_names ++= id.name
+            ranges ++= ?
+            defaults ++= id.value
+            }
+        else {
+            defaults[yloc] = id.value
+        }
+    }
+
+    do i = 0,len(all_names)-1 {
+       enumeration(.master_id = all_names[i],
+                   .range = ranges[i],
+                   .default = defaults[i]
+                  )
+        }
 ;
 save_
 
@@ -2044,14 +2127,46 @@ loop_
   _method.expression
   Evaluation
 ;
+all_names = List()
+linked_names = List()
+
 loop i as item {
-    name(.master_id = i.name
+    all_names ++= i.name
+    linked_names ++= NULL
+    }
+loop c as ddl2::category {
+    all_names ++= c.id
+    linked_names ++= NULL
+    }
+    
+# find linked items
+
+loop il as item_linked {
+    xloc = indexin(all_names,il.child_name)
+    if (xloc != -1) {
+        linked_names[xloc] = il.parent_name
+        }
+}
+loop ir as item_related {
+    yloc = indexin(all_names,ir.name)
+    if (yloc != -1 && ir.function_code == 'associated_esd') {
+        dummy = println(ir.related_name)
+        linked_names[yloc] = ir.related_name
+        }
+}
+
+# now loop over and set
+do one_name = 0,len(all_names)-1 {
+    name(.master_id = all_names[one_name],
+         .linked_item_id = linked_names[one_name]
         )
 }
-loop c as ddl2::category {
-    name(.master_id = c.id)
-    }
-name(.master_id = "HEAD")
+# dont forget the head category
+
+name(.master_id = "HEAD",
+     .linked_item_id = nothing
+    )
+
 ;
 
 save_
@@ -2125,7 +2240,7 @@ loop_
     }
 }
 loop ir as item_related {
-    if (ir.name == name.master_id && ir.function_code== 'alternate_esd') {
+    if (ir.name == name.master_id && ir.function_code== 'associated_esd') {
        _name.linked_item_id = ir.related_name
        break
        }
@@ -2189,10 +2304,88 @@ loop_
   _method.expression
   Evaluation
 ;
+   names = List()
+   purpose = List()
+   contents = List()
    loop it as item_type {
-    type(.master_id = it.name
-         )
+       names ++= it.name
+       base_type = item_type[it.name].code
+       primitive_type = item_type_list[base_type].primitive_code
+       if (primitive_type == 'char' && base_type == 'binary') {
+           contents ++= 'Complex'
+           purpose ++= 'Number'
+           }
+       else { if (primitive_type == 'char') {
+           contents ++= 'Text'
+           purpose ++= 'Describe'
+           }
+       else { if (primitive_type == 'uchar') {
+           contents ++= 'Code'
+           purpose ++= 'Describe'
+           }
+       else { if (primitive_type == 'numb' && base_type == 'int') {
+           contents ++= 'Integer'
+           purpose ++= 'Number'
+           }
+       else { if (primitive_type == 'numb' && base_type == 'float') {
+           contents ++= 'Real'
+           purpose ++= 'Number'
+           }
+       else { if (primitive_type == 'null') {
+           contents ++= 'Implied'
+           purpose ++= 'Describe'
+           }
+       else {  #should not happen
+           contents ++= NULL
+           purpose ++= NULL
+           }
+   }
+   }
+   }
+   }
+   }
+
+       }
+
+# figure out type.purpose
+    loop es as enumeration_set {
+        xloc = indexin(names,es.master_id)
+        if (xloc > -1) {
+            purpose[xloc] = 'State'
+            }
+        }   
+
+    loop n as name {
+        xloc = indexin(names, n.linked_item_id)
+        if (xloc > -1) {
+            purpose[xloc] = 'Link'
+            }
+        }
+
+    loop ck as ddlm::category_key {
+        xloc = indexin(names,ck.name)
+        if (xloc > -1) {
+            purpose[xloc] = 'Key'
+            }
+        }
+
+    loop ir as item_related {
+        if (ir.function_code == 'associated_esd') {
+            xloc = indexin(names,ir.name)
+            purpose[xloc] = 'SU'
+            xloc = indexin(names,ir.related_name)
+            purpose[xloc] = 'Measurand'
+        }
     }
+        
+    do f = 0,len(names)-1 {
+    
+        type(.master_id = names[f],
+             .contents = contents[f],
+             .purpose = purpose[f]
+            )   
+    }
+
 ;
 save_
 
@@ -2560,7 +2753,7 @@ loop_
 ;
 type.purpose = 'Describe'
 if (type.contents in ['Integer','Real','Imag','Complex']) {
-        type.purpose = 'Numeric'
+        type.purpose = 'Number'
         }
 
 # Look for a state

@@ -155,7 +155,7 @@ insert_import(d::DDLm_Dictionary,to_be_imported) = begin
     other_global = get_dic_name(to_be_imported)
     other_uri = to_be_imported[other_global][:dictionary].uri[]
     head = find_head_category(d)
-    import_spec = Dict("save"=>other_head,"file"=>other_uri,"mode"=>"Full")
+    import_spec = Dict("save"=>other_head,"file"=>other_uri,"mode"=>"Full","dupl"=>"Ignore")
     current_import = Dict{String,String}[]
     if haskey(d[head],:import)
         current_import = d[head][:import].get[]

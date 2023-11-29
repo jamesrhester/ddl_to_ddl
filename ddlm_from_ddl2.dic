@@ -1317,7 +1317,7 @@ loop_
            defaults ++= ?
            }
        else {
-           yloc = indexin(all_names,ir.name)
+           yloc = indexof(all_names,ir.name)
            if (ir.minimum != ir.maximum) {
                maxes[yloc] = ir.maximum
                mins[yloc] = ir.minimum
@@ -1328,7 +1328,7 @@ loop_
    # Now we have the bounds, find inclusive ones
    
    loop ir as item_range {
-       yloc = indexin(all_names,ir.name)
+       yloc = indexof(all_names,ir.name)
        new_max = ir.maximum
        new_min = ir.minimum
        if (new_max == new_min) { #Have bounds
@@ -1361,7 +1361,7 @@ loop_
     # And defaults
 
     loop id as item_default {
-        yloc = indexin(all_names,id.name)
+        yloc = indexof(all_names,id.name)
         if (yloc == -1) {
             all_names ++= id.name
             ranges ++= ?
@@ -2142,13 +2142,13 @@ loop c as ddl2::category {
 # find linked items
 
 loop il as item_linked {
-    xloc = indexin(all_names,il.child_name)
+    xloc = indexof(all_names,il.child_name)
     if (xloc != -1) {
         linked_names[xloc] = il.parent_name
         }
 }
 loop ir as item_related {
-    yloc = indexin(all_names,ir.name)
+    yloc = indexof(all_names,ir.name)
     if (yloc != -1 && ir.function_code == 'associated_esd') {
         dummy = println(ir.related_name)
         linked_names[yloc] = ir.related_name
@@ -2349,21 +2349,21 @@ loop_
 
 # figure out type.purpose
     loop es as enumeration_set {
-        xloc = indexin(names,es.master_id)
+        xloc = indexof(names,es.master_id)
         if (xloc > -1) {
             purpose[xloc] = 'State'
             }
         }   
 
     loop n as name {
-        xloc = indexin(names, n.linked_item_id)
+        xloc = indexof(names, n.linked_item_id)
         if (xloc > -1) {
             purpose[xloc] = 'Link'
             }
         }
 
     loop ck as ddlm::category_key {
-        xloc = indexin(names,ck.name)
+        xloc = indexof(names,ck.name)
         if (xloc > -1) {
             purpose[xloc] = 'Key'
             }
@@ -2371,9 +2371,9 @@ loop_
 
     loop ir as item_related {
         if (ir.function_code == 'associated_esd') {
-            xloc = indexin(names,ir.name)
+            xloc = indexof(names,ir.name)
             purpose[xloc] = 'SU'
-            xloc = indexin(names,ir.related_name)
+            xloc = indexof(names,ir.related_name)
             purpose[xloc] = 'Measurand'
         }
     }

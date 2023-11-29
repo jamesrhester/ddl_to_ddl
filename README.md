@@ -34,14 +34,8 @@ This will convert `<source_dictionary>` written in DDL variant `<source_ddl>`
 new dictionary will have `to_<target_ddl>.dic` appended. Note that this conversion is currently
 *very slow* (several minutes for the imgCIF dictionary).
 
-Program `compare.jl` is also included. This compares two DDL2 dictionaries to find
-differences:
-
-```
-julia compare.jl <ddl> <first_dictionary> <second_dictionary>
-```
-
-where `<ddl>` is `ddl2` (DDLm not yet supported).
+Program `compare.jl` from [Julia CIF tools](https://github.com/jamesrhester/julia_cif_tools)
+can be used to compare the result of round-tripping DDL2 -> DDLm -> DDL2.
 
 ## How it works
 
@@ -61,6 +55,5 @@ is the only addition to the DDLm attribute set and only appears in
 the dREL methods.
 
 `ddl2_extra_ddlm.dic` contains additional DDLm attribute
-definitions for describing construction of text values. The detailed
-descriptions found in DDL2 are not present in DDLm.
-
+definitions for capturing information not covered by DDL2, such as
+text value construction and NeXus mapping details.

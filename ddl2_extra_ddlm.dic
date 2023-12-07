@@ -37,7 +37,7 @@ save_DDL2_ATTRIBUTES
     _name.object_id              DDL2_ATTRIBUTES
     _name.category_id            DDL2_ATTRIBUTES
     _import.get
-        [{'save':ATTRIBUTES 'file':ddlm_from_ddl2.dic 'mode':Full}]
+        [{'save':ATTRIBUTES 'file':ddlm_from_ddl2.dic 'mode':Full 'dupl':Ignore}]
 
 save_
 
@@ -343,6 +343,65 @@ save_type.ddl2_code
     Evaluation
 ;
     type.ddl2_code = item_type[type.master_id].code
+;
+
+save_
+
+save_ALIAS
+
+    _definition.id               ALIAS
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2013-09-08
+    _description.text
+;
+     The attributes used to specify the aliased names of definitions. This
+     DDL2-specific version of the category includes version information,
+     which is not present in the pure DDLm category.
+;
+    _name.category_id            ATTRIBUTES
+    _name.object_id              ALIAS
+    _category.key_id             '_alias.definition_id'
+    loop_
+    _category_key.name
+                                 '_alias.definition_id'
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+loop ia as item_aliases {
+          alias(.master_id        = ia.name,
+                  .definition_id  = ia.alias_name,
+                  .dictionary_uri = ia.dictionary,
+                  .ddl2_version   = ia.version)
+                  }
+;
+
+
+save_
+
+save_alias.ddl2_version
+
+    _definition.id               '_alias.ddl2_version'
+    _definition.class            Attribute
+    _definition.update           2023-12-01
+    _description.text
+;
+    The version of the dictionary the alias is found in.
+;
+    _name.category_id            alias
+    _name.object_id              ddl2_version
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Code
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    alias.ddl2_version = item_aliases[alias.master_id].version
 ;
 
 save_
@@ -685,3 +744,69 @@ save_ddl2_enumeration_range.minimum
     _type.contents               Text
 
 save_
+
+save_ddl2_item_related
+
+    _definition.id               ddl2_item_related
+    _definition.scope            Category
+    _definition.class            Loop
+    _definition.update           2023-12-01
+    _description.text
+;
+     A copy of the DDL2 item_related category
+;
+    _name.category_id            DDL2_ATTRIBUTES
+    _name.object_id              DDL2_ITEM_RELATED
+    loop_
+       _category_key.name
+       '_ddl2_item_related.related_name'
+       '_ddl2_item_related.function_code'
+    loop_
+    _method.purpose
+    _method.expression
+    Evaluation
+;
+    loop ir as item_related {
+        ddl2_item_related(.master_id = ir.name,
+                               .related_name = ir.related_name,
+                               .function_code = ir.function_code)
+    }
+;
+save_
+
+save_ddl2_item_related.related_name
+
+    _definition.id               '_ddl2_item_related.related_name'
+    _definition.class            Attribute
+    _definition.update           2023-12-01
+    _description.text
+;
+    Identifies the defined data item.
+;
+    _name.category_id            ddl2_item_related
+    _name.object_id              related_name
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Tag
+
+save_
+
+save_ddl2_item_related.function_code
+
+    _definition.id               '_ddl2_item_related.function_code'
+    _definition.class            Attribute
+    _definition.update           2023-12-01
+    _description.text
+;
+    The type of relationship. See DDL2 dictionary for details.
+;
+    _name.category_id            ddl2_item_related
+    _name.object_id              function_code
+    _type.purpose                Encode
+    _type.source                 Assigned
+    _type.container              Single
+    _type.contents               Text
+
+save_
+

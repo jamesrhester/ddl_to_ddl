@@ -731,7 +731,7 @@ save_CATEGORY_GROUP
     _category_group.category_id
          'ddl_group'                     category_group
          'category_group'                category_group
-    _category_method.method_id           category_group
+    _category_methods.method_id           category_group
     save_
 
 save__category_group.id
@@ -1802,6 +1802,8 @@ save_ITEM_RELATED
     _category_group.category_id
          'ddl_group'                     item_related
          'item_group'                    item_related
+    _category_methods.method_id          item_related
+
      save_
 
 
@@ -3178,7 +3180,7 @@ datablock calculation dREL
 category calculation dREL
 ;
     loop d as definition {
-       if (d.scope == "Category" and d.class == "Loop")
+       if (d.scope == "Category")
            ddl2::category(.id        = d.id)
                     }
 ;
@@ -3220,7 +3222,7 @@ category_group_list calculation dREL
 category_examples calculation dREL
 ;
    loop de as description_example {
-       if (definition[de.master_id].scope == 'Category' and definition[de.master_id].class== "Loop")
+       if (definition[de.master_id].scope == 'Category')
            category_examples(.id = de.master_id,
                              .case = de.case
                              )
@@ -3264,8 +3266,11 @@ dictionary_history calculation dREL
 item calculation dREL
 ;
   loop n as name {
+      if (definition[n.master_id].scope != 'Category') {
       item(.name           = n.master_id,
+           .category_id    = n.category_id,
            .mandatory_code = n.ddl2_mandatory)
+           }
   }
 ;
 
@@ -3280,7 +3285,7 @@ item_aliases calculation dREL
       item_aliases(.name = a.master_id,
                    .alias_name = a.definition_id,
                    .dictionary = a.dictionary_uri,
-                   .version = "0.0.0"
+                   .version = a.ddl2_version
                    )
   }
 ;
@@ -3377,6 +3382,16 @@ loop der as ddl2_enumeration_range {
     item_range(.name = der.master_id,
                .minimum = der.minimum,
                .maximum = der.maximum
+               )
+}
+;
+
+item_related calculation dREL
+;
+loop dir as ddl2_item_related {
+    item_related(.name = dir.master_id,
+               .related_name = dir.related_name,
+               .function_code = dir.function_code
                )
 }
 ;

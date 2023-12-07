@@ -25,7 +25,7 @@ load_dictionary_as_data(::Type{DDL2_Dictionary}, filename) = begin
 end    
 
 load_dictionary_as_data(::Type{DDLm_Dictionary}, filename) = begin
-    ddlmdic = DDLm_Dictionary(filename)
+    ddlmdic = DDLm_Dictionary(filename, ignore_imports=:Full)
     return TypedDataSource(as_data(ddlmdic),ddlm_trans_dic),ddlmdic
 end    
 
@@ -167,7 +167,7 @@ insert_import(d::DDLm_Dictionary,to_be_imported) = begin
     update_dict!(d,head,"_import.get",current_import)
 end
 
-translate(from_dict,from_namespace; outname=nothing,set_source = nothing, new_key=nothing, add_import=false, text="") = begin
+translate(from_dict,from_namespace; set_source = nothing, new_key=nothing, add_import=false, text="") = begin
     to_namespace = from_namespace == "ddlm" ? "ddl2" : "ddlm"
     category_holder,as_dic = prepare_data(from_dict,to_namespace)
     force_translate(category_holder,to_namespace)
@@ -197,14 +197,7 @@ translate(from_dict,from_namespace; outname=nothing,set_source = nothing, new_ke
         insert_import(output,core_dic)
     end
 
-    # And output this monster
-    
-    fname = outname == nothing ? from_dict*"to_$to_namespace.dic" : outname
-    outfile = open(fname,"w")
-    println("#=== We have a dictionary ===#")
-    println("$(output.block)")
-    Base.show(outfile,MIME("text/cif"),output)
-    close(outfile)
+    return output, to_namespace
 end
 
 parse_cmdline(d) = begin
@@ -241,9 +234,19 @@ if abspath(PROGRAM_FILE) == @__FILE__
     source_lang = parsed_args["source_lang"]
     core = parsed_args["core"]
     @info "Arguments" parsed_args
-    translate(source_dic,source_lang,outname = parsed_args["output"],
+    result, to_namespace = translate(source_dic,source_lang,
               set_source= parsed_args["core"] == [] ? nothing : parsed_args["core"][],
               new_key = parsed_args["keys"] == [] ? nothing : parsed_args["keys"][],
               add_import = parsed_args["import"],
               text = parsed_args["text"][])
+
+    # And output this monster
+
+    outname = parsed_args["output"]
+    fname = outname == nothing ? source_dic*"to_$to_namespace.dic" : outname
+    outfile = open(fname,"w")
+    println("#=== We have a dictionary ===#")
+    @debug "Item aliases" result["_diffrn_detector.detector"][:item_aliases]
+    Base.show(outfile,MIME("text/cif"), result)
+    close(outfile)
 end

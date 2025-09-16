@@ -161,9 +161,25 @@ save_CATEGORY_KEY
     _method.purpose               Evaluation
     _method.expression
 ;
-loop c as ddl2::category_key
+
+# DDL2 may use an updated version of a key data name belonging to a different category
+# for a deprecated category
+# The following detects this case and reverts
+loop c as ddl2::category_key {
+final_name = c.name
+prelim_cat = name[c.name].category_id
+if (prelim_cat != c.id) {
+    dummy = println("$prelim_cat $c.id")
+    loop ir as item_related {
+        if (ir.related_name == final_name && ir.function_code == 'replacedby') {
+        final_name = ir.name
+        break
+        }
+    }
+}
 ddlm::category_key(.master_id = c.id,
-                  .name = c.name)
+                  .name = final_name)
+                  }
 ;
 
 save_
@@ -218,8 +234,8 @@ save_DEFINITION
            .scope = 'Category'
            )
            }
-   definition(.id = "HEAD",
-              .master_id = "HEAD",
+   definition(.id = 'HEAD',
+              .master_id = 'HEAD',
               .class = 'Head',
               .scope = 'Category'
               )
@@ -1073,12 +1089,6 @@ save_dictionary_valid.application
     _type.container               List
     _type.dimension               '[2]'
     _type.contents                Code
-    _method.purpose               Evaluation
-    _method.expression
-;
-     _dictionary_valid.application
-                      = [_dictionary_valid.scope,_dictionary_valid.option]
-;
 
 save_
 
@@ -1252,6 +1262,17 @@ save_ENUMERATION
             defaults[yloc] = id.value
         }
     }
+
+    # Add anything missing to linked names
+
+    loop il as item_linked {
+        if (il.parent_name in all_names && il.child_name not in all_names) {
+            xloc = indexof(all_names, il.parent_name)
+            all_names ++= il.child_name
+            ranges ++= ranges[xloc]
+            defaults ++= defaults[xloc]
+            }
+        }
 
     do i = 0,len(all_names)-1 {
        enumeration(.master_id = all_names[i],
@@ -2214,8 +2235,10 @@ all_names = List()
 linked_names = List()
 
 loop i as item {
-    all_names ++= i.name
-    linked_names ++= NULL
+    if (indexof(all_names, i.name) == -1) {
+        all_names ++= i.name
+        linked_names ++= NULL
+        }
     }
 loop c as ddl2::category {
     all_names ++= c.id
@@ -2386,12 +2409,16 @@ save_TYPE
            contents ++= 'Complex'
            purpose ++= 'Number'
            }
-       else { if (primitive_type == 'char') {
-           contents ++= 'Text'
+       else { if (base_type == 'code') {
+           contents ++= 'Word'
            purpose ++= 'Describe'
            }
-       else { if (primitive_type == 'uchar') {
+       else { if (base_type == 'ucode') {
            contents ++= 'Code'
+           purpose ++= 'Describe'
+           }
+       else { if (primitive_type == 'char' || primitive_type == 'uchar') {
+           contents ++= 'Text'
            purpose ++= 'Describe'
            }
        else { if (primitive_type == 'numb' && base_type == 'int') {
@@ -2415,9 +2442,21 @@ save_TYPE
    }
    }
    }
+   }
 
        }
 
+# add in information in linked item names
+    loop il as item_linked {
+        if (indexof(names, il.child_name) == -1) {
+            xloc = indexof(names, il.parent_name)
+            if (xloc != -1) {
+                names ++= il.child_name
+                contents ++= contents[xloc]
+                purpose ++= 'Link'
+                }
+            }
+    }
 # figure out type.purpose
     loop es as enumeration_set {
         xloc = indexof(names,es.master_id)
@@ -2434,17 +2473,20 @@ save_TYPE
         }
 
     loop n as name {
-        xloc = indexof(names, n.linked_item_id)
-        if (xloc > -1) {
-            purpose[xloc] = 'Link'
+        if (n.linked_item_id != NULL)
+        {
+            xloc = indexof(names, n.master_id)
+            if (xloc > -1) {
+               purpose[xloc] = 'Link'
+               }
             }
         }
 
     loop ir as item_related {
         if (ir.function_code == 'associated_esd') {
-            xloc = indexof(names,ir.name)
+            xloc = indexof(names, ir.name)
             purpose[xloc] = 'SU'
-            xloc = indexof(names,ir.related_name)
+            xloc = indexof(names, ir.related_name)
             purpose[xloc] = 'Measurand'
         }
     }
@@ -2517,7 +2559,7 @@ save_type.container
 ;
     base_type = item_type[type.master_id].code
     type.container = 'Single'
-    if (base_type == 'binary') type.container = 'Array'
+    if (not is_missing(base_type) && base_type == 'binary') type.container = 'Array'
 ;
 
 save_
@@ -2741,6 +2783,12 @@ save_type.dimension
          '[6]'                    'List of 6 elements.'
          '[]'                     'Unknown number of list elements.'
 
+    _method.purpose               Evaluation
+    _method.expression
+;
+    if (not is_missing(type.container) && type.container == 'Array') type.dimension = '[]'
+;
+
 save_
 
 save_type.indices
@@ -2954,17 +3002,23 @@ loop es as enumeration_set {
         break
         }
 }
+
+loop ck as ddlm::category_key {
+    if (type.master_id == ck.name)
+    {  
+           type.purpose = 'Key'
+           break
+    }
+    }    
+
+# Link overrides Key
 loop n as name {
     if (n.linked_item_id == type.master_id) {
         type.purpose = 'Link'
         break
         }
 }       
-# Key overrides Link
-loop ck as ddlm::category_key {
-    if (ck.name == type.master_id)
-        type.purpose = 'Key'
-        }
+
 loop ir as item_related {
     if (ir.function_code == 'associated_esd') {
         if (ir.name == type.master_id)
@@ -3048,7 +3102,7 @@ save_type.source
     _method.expression
 ;
     type.source = 'Assigned'
-    if (type.purpose == 'Link') type.source = 'Related'
+    if (type.purpose == 'Link' || type.purpose == 'SU') type.source = 'Related'
 ;
 
 save_
@@ -3068,9 +3122,25 @@ save_UNITS
     _method.purpose               Evaluation
     _method.expression
 ;
+all_names = List()
+all_codes = List()
 loop iu as item_units {
-    units(.master_id = iu.name,
-           .code = iu.code
+    all_names ++= iu.name
+    all_codes ++= iu.code
+    }
+
+loop t as type {
+    if (t.purpose == 'Number' or t.contents == 'Integer') {
+       xloc = indexof(all_names, t.master_id)
+       if (xloc == -1) {
+           all_names ++= t.master_id
+           all_codes ++= 'none'
+           }
+       }
+    }
+do i = 0, len(all_names) - 1 {
+    units(.master_id = all_names[i],
+           .code = all_codes[i]
          )
     }
 ;

@@ -371,9 +371,27 @@ save_ALIAS
     Evaluation
 ;
 loop ia as item_aliases {
+          uri = ia.dictionary
+          dummy = println(uri)
+          if (ia.dictionary == "cifdic.c91") uri = "ftp://ftp.iucr.org/pub/cifdics/cifdic.C91"
+          if (ia.dictionary == "cif_img.dic") {
+              dummy = println("Now processing cif_img.dic")
+              if (ia.version == "1.0") uri = "ftp://ftp.iucr.org/pub/cifdics/cif_img_1.0.dic"
+              if (ia.version == "1.8.2") uri = "https://github.com/dials/cbflib/raw/refs/heads/main/doc/cif_img_1.8.2.dic"
+              if (ia.version == "1.4") uri = "https://github.com/dials/cbflib/raw/refs/heads/main/doc/cif_img_1.4_4Jul06_draft.dic"
+              }
+
+          if (ia.dictionary == "cif_core.dic") {
+              if (ia.version == "2.0.1") uri = "ftp://ftp.iucr.org/pub/cifdics/cif_core_2.0.1.dic"
+              if (ia.version == "2.0") uri = "ftp://ftp.iucr.org/pub/cifdics/cif_core_2.0.dic"
+              }
+          if (ia.dictionary == "mmcif_pdbx.dic") {
+             if (ia.version == "5.384") uri = "https://mmcif.wwpdb.org/dictionaries/ascii/mmcif_pdbx_v50.dic"
+          }
+
           alias(.master_id        = ia.name,
                   .definition_id  = ia.alias_name,
-                  .dictionary_uri = ia.dictionary,
+                  .dictionary_uri = uri,
                   .ddl2_version   = ia.version)
                   }
 ;

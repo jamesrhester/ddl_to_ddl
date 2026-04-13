@@ -14,7 +14,7 @@ data_DDL_DIC
     _dictionary.uri
         https://raw.githubusercontent.com/COMCIFS/cif_core/master/ddl.dic
     _dictionary.ddl_conformance   4.2.0
-    _dictionary.namespace         DdlDic
+    _dictionary.namespace         ddlm
     _description.text
 ;
     This dictionary contains the definitions of attributes that
@@ -55,9 +55,26 @@ save_ALIAS
     _method.expression
 ;
 loop ia as item_aliases {
+          uri = ia.dictionary
+          dummy = println(uri)
+          if (ia.dictionary == "cifdic.c91") uri = "ftp://ftp.iucr.org/pub/cifdics/cifdic.C91"
+          if (ia.dictionary == "cif_img.dic") {
+              if (ia.version == "1.0") uri = "ftp://ftp.iucr.org/pub/cifdics/cif_img_1.0.dic"
+              if (ia.version == "1.8.2") uri = "https://github.com/dials/cbflib/raw/refs/heads/main/doc/cif_img_1.8.2.dic"
+              if (ia.version == "1.4") uri = "https://github.com/dials/cbflib/raw/refs/heads/main/doc/cif_img_1.4_4Jul06_draft.dic"
+              }
+
+          if (ia.dictionary == "cif_core.dic") {
+              if (ia.version == "2.0.1") uri = "ftp://ftp.iucr.org/pub/cifdics/cif_core_2.0.1.dic"
+              if (ia.version == "2.0") uri = "ftp://ftp.iucr.org/pub/cifdics/cif_core_2.0.dic"
+              }
+          if (ia.dictionary == "mmcif_pdbx.dic") {
+             if (ia.version == "5.384" or ia.version == "5.385") uri = "https://mmcif.wwpdb.org/dictionaries/ascii/mmcif_pdbx_v50.dic"
+          }
+          dummy = println(uri)
           alias(.master_id        = ia.name,
                   .definition_id  = ia.alias_name,
-                  .dictionary_uri = ia.dictionary)
+                  .dictionary_uri = uri)
                   }
 ;
 
@@ -2375,8 +2392,14 @@ do p = length(fullname)-1,1,-1 {
         break
         }
     }
-    if (p > 1)
-_name.object_id = fullname[p+1:length(fullname)]
+    if (p > 1) {
+    obj_part = ""
+    do m=p+1,Len(fullname)-1 {
+        if (fullname[m] in '[]') obj_part += '_'
+        else obj_part += fullname[m]
+        }
+_name.object_id = obj_part
+}
     else
     _name.object_id = fullname[0:length(fullname)]
 ;

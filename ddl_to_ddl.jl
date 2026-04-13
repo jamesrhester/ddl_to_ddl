@@ -12,22 +12,29 @@ using URIs
 # There are plain versions to avoid a cycle of derivations pinballing between ddl2
 # and ddlm methods
 #
-const ddl2_trans_dic = DDL2_Dictionary(joinpath(@__DIR__,"ddl2_with_methods.dic"))
-const ddlm_trans_dic = DDLm_Dictionary(joinpath(@__DIR__,"ddl2_extra_ddlm.dic"))
-const ddl2_plain_dic = DDL2_Dictionary(joinpath(@__DIR__,"ddl_core_2.1.3.dic"))
+const ddl2_trans_dic = joinpath(@__DIR__,"ddl2_with_methods.dic")
+const ddlm_with_ddl2_trans_dic = joinpath(@__DIR__,"ddl2_extra_ddlm.dic")
+const ddlm_trans_dic = joinpath(@__DIR__,"ddlm_from_ddl2.dic")
+const ddl2_plain_dic = joinpath(@__DIR__,"ddl_core_2.1.3.dic")
 
 """
 Load a dictionary as a data source.  We return the dictionary interpretation as well
 to make use of high-level information
 """
-load_dictionary_as_data(::Type{DDL2_Dictionary}, filename) = begin
+load_dictionary_as_data(::Type{DDL2_Dictionary}, filename; kwargs...) = begin
     ddl2dic = DDL2_Dictionary(filename)
-    return TypedDataSource(as_data(ddl2dic), ddl2_trans_dic), ddl2dic
+    return TypedDataSource(as_data(ddl2dic), DDL2_Dictionary(ddl2_trans_dic)), ddl2dic
 end    
 
-load_dictionary_as_data(::Type{DDLm_Dictionary}, filename) = begin
+load_dictionary_as_data(::Type{DDLm_Dictionary}, filename; no_ddl2 = false) = begin
     ddlmdic = DDLm_Dictionary(filename, ignore_imports=:Full)
-    return TypedDataSource(as_data(ddlmdic), ddlm_trans_dic), ddlmdic
+    if no_ddl2
+        trans_dic = ddlm_trans_dic
+    else
+        trans_dic = ddm_with_ddl2_trans_dic
+    end
+    
+    return TypedDataSource(as_data(ddlmdic), trans_dic), ddlmdic
 end    
 
 force_translate(category_holder,to_namespace) = begin
@@ -64,16 +71,16 @@ force_translate(category_holder,to_namespace) = begin
     println( "#== End of translation ==#")
 end
 
-prepare_data(input_dict,to_namespace) = begin
+prepare_data(input_dict, to_namespace; no_ddl2 = false) = begin
     if to_namespace == "ddlm"
         dictype = DDL2_Dictionary
-        att_ref = ddl2_plain_dic
-        other_ref = ddlm_trans_dic
+        att_ref = dictype(ddl2_plain_dic)
+        other_ref = no_ddl2 ? DDLm_Dictionary(ddlm_trans_dic) : DDLm_Dictionary(ddlm_with_ddl2_trans_dic) 
     elseif to_namespace == "ddl2"
         dictype = DDLm_Dictionary
         remove_methods!(ddlm_trans_dic)
-        att_ref = ddlm_trans_dic
-        other_ref = ddl2_trans_dic
+        att_ref = DDLm_Dictionary(ddlm_with_ddl2_trans_dic)
+        other_ref = DDL2_Dictionary(ddl2_trans_dic)
     end
     dic_datasource, as_dic = load_dictionary_as_data(dictype, input_dict)
     category_holder = DynamicDDLmRC(dic_datasource, att_ref)
@@ -297,6 +304,55 @@ drop_ddl2!(d::DDLm_Dictionary) = begin
     add_audit_message!(d, "(DDLm conversion) Removed DDL2-only categories")
 end
 
+add_missing_text!(d::DDLm_Dictionary) = begin
+
+    for r in eachrow(d[:name])
+        if size(d[r.master_id][:description], 1) == 0
+            update_dict!(d, r.master_id, "_description.text", "No definition supplied")
+        end
+    end
+    
+end
+
+remove_bad_examples!(d::DDLm_Dictionary) = begin
+
+    # If _description_example.case has whitespace when the type is 'Word' or 'Code', drop
+    # it completely as it is not an example of that data name
+
+    # Should really be in the CrystalInfoFramework module, not here.
+    tbd = []
+
+    for k in keys(d.block[:description_example])
+        master = k["master_id"]
+        if is_category(d, master) continue end
+        if !(d[master][:type].contents[] in ("Word", "Code")) continue end
+        target = d[master][:description_example]
+        parent_rows = first(parentindices(target))
+        @debug "Checking examples for $master"
+        for (rn, ex) in enumerate(eachrow(target))
+            if any(isspace, ex.case)
+                @debug "Found bad example for $master: $(ex.case)" rn
+                push!(tbd, parent_rows[rn])
+            end
+        end        
+    end
+
+    if !isempty(tbd)
+        sort!(tbd, rev = true)
+
+        @debug "Removing rows $tbd"
+        for badrow in tbd
+            deleteat!(parent(d.block[:description_example]), badrow)
+        end
+
+        # And resort
+
+        d.block[:description_example] = groupby(parent(d.block[:description_example]), "master_id")
+    end
+
+    
+end
+
 """
     Add `to_be_imported` to the list of imported dictionaries of `d`
 """
@@ -369,7 +425,7 @@ translate(from_dict, from_namespace; set_source = nothing, add_import=false, tex
     if !postprocess
         to_namespace = from_namespace == "ddlm" ? "ddl2" : "ddlm"
 
-        category_holder,as_dic = prepare_data(from_dict,to_namespace)
+        category_holder,as_dic = prepare_data(from_dict,to_namespace, no_ddl2 = strict)
  
         force_translate(category_holder,to_namespace)
     
@@ -413,10 +469,10 @@ translate(from_dict, from_namespace; set_source = nothing, add_import=false, tex
         expand_keys(output,new_key,text)
     end
 
-    # Remove aliases
-
     if strict && to_namespace == "ddlm"
-        
+
+        # Remove aliases
+
         println("#== Removing aliased definitions ==#")
         remove_aliases!(output)
         if set_source != nothing
@@ -438,6 +494,24 @@ translate(from_dict, from_namespace; set_source = nothing, add_import=false, tex
         println("#== Removing non-DDLm attributes ==#")
         drop_ddl2!(output)
 
+        # Add update dates
+
+        println("#== Adding mandatory update dates ==#")
+        output[:definition].update .= "$(today())"
+
+        # Add missing descriptions
+
+        println("#== Adding missing definition descriptions ==#")
+        add_missing_text!(output)
+
+        # Remove bad examples
+
+        println("#== Remove incorrect examples ==#")
+        remove_bad_examples!(output)
+
+        # Provide a dictionary URI
+        println("#== Providing Dictionary URI ==#")
+        output[:dictionary].uri = ["https://github.com/COMCIFS/imgCIF/cif_img.dic"]
     end
 
     # Add any imports

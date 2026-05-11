@@ -325,6 +325,7 @@ remove_bad_examples!(d::DDLm_Dictionary) = begin
     for k in keys(d.block[:description_example])
         master = k["master_id"]
         if is_category(d, master) continue end
+        if !(:contents in propertynames(d[master][:type])) continue end
         if !(d[master][:type].contents[] in ("Word", "Code")) continue end
         target = d[master][:description_example]
         parent_rows = first(parentindices(target))

@@ -32,7 +32,9 @@ move_definitions!(full_dictionary, category, linked_keys, non_keys) = begin
     transfer_non_keys!(full_dictionary, new_dictionary, non_keys)
     transfer_keys!(full_dictionary, new_dictionary, linked_keys)
     transfer_cat!(full_dictionary, new_dictionary, category)
-    
+
+    # Remove mention of category if we can
+    remove_cat_comments!(full_dictionary, category)
     return full_dictionary, new_dictionary
 end
 
@@ -129,6 +131,35 @@ find_relevant_defs(d::DDLm_Dictionary, category) = begin
     cat_key = cat_key[]
     @debug "Found key for $category: $cat_key"
     find_relevant_defs(d, category, cat_key)
+end
+
+"""
+Remove all lines in the dictionary description that contain something
+matching _[A-Za-z.]*<category>. Additionally, remove information about
+category group <category>_GROUP if present. This behaviour is based on
+the way that the variant category is documented in imgCIF.
+"""
+remove_cat_comments!(d::DDLm_Dictionary, category) = begin
+
+    hc = get_dic_name(d)
+    full_text = d[hc][:description].text[]
+
+    # First remove any group
+    groupfinder = Regex("^\\|$(uppercase(category))_GROUP .*^\\+-+\\+", "ms")
+    q = split(full_text, groupfinder)
+
+    full_text = join(q, "\n")
+
+    # Remove all lines containing category
+
+    remains = filter(split(full_text, "\n")) do x
+        badline = !occursin(Regex("_[A-Za-z.]*$category"), x)
+        badline &= !occursin(Regex(" $(uppercase(category))"), x)
+        badline
+    end
+    
+    new_text = join(remains, "\n")
+    d[hc][:description].text = [new_text]
 end
 
 new_dict_with_boilerplate(category, fixed_name, fixed_head) = begin

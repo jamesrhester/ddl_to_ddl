@@ -792,7 +792,7 @@ save_dictionary.namespace
     _method.purpose               Evaluation
     _method.expression
 ;
-    _dictionary.namespace = "DDLm"
+    _dictionary.namespace = "CifCore"
 ;
 
 save_

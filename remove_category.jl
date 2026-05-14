@@ -32,7 +32,7 @@ move_definitions!(full_dictionary, category, cat_key, linked_keys, non_keys; is_
     transfer_non_keys!(full_dictionary, new_dictionary, non_keys)
     transfer_keys!(full_dictionary, new_dictionary, linked_keys)
     transfer_cat!(full_dictionary, new_dictionary, category, cat_key, is_set)
-
+    reparent_cats!(new_dictionary, full_head)
     # Remove mention of category if we can
     remove_cat_comments!(full_dictionary, category)
     return full_dictionary, new_dictionary
@@ -82,14 +82,6 @@ end
 transfer_cat!(old_dictionary, new_dictionary, catname, cat_key, is_set) = begin
     add_definition!(new_dictionary, old_dictionary[catname])
 
-    # Does it need reparenting?
-
-    old_parent = lowercase(old_dictionary[catname][:name].category_id[])
-    old_head = find_head_category(old_dictionary)
-    if old_parent == old_head
-        new_dictionary[catname][:name].category_id = [find_head_category(new_dictionary)]
-    end
-
     # Is it a set category?
     if is_set
         @debug "Making $catname a Set category"
@@ -105,6 +97,24 @@ transfer_cat!(old_dictionary, new_dictionary, catname, cat_key, is_set) = begin
         delete!(old_dictionary, c)
     end
     
+end
+
+reparent_cats!(new_dictionary, old_head) = begin
+    """Change the head category if necessary"""
+
+    all_cats = get_categories(new_dictionary, head = false)
+    
+    # Does it need reparenting?
+
+    new_head = find_head_category(new_dictionary)
+    for one_cat in all_cats
+        current_parent = lowercase(new_dictionary[one_cat][:name].category_id[])
+        if current_parent == lowercase(old_head)
+            @debug "Switching parent of $one_cat from $current_parent to $new_head"
+            new_dictionary[one_cat][:name].category_id = [uppercase(new_head)]
+        end
+    end
+
 end
 
 """
@@ -187,7 +197,7 @@ new_dict_with_boilerplate(category, fixed_name, fixed_head) = begin
 data_$dic_name
 
 _dictionary.title           $dic_name
-_dictionary.class           Attribute
+_dictionary.class           Instance
 _dictionary.version         1.0.0
 _dictionary.date            $now
 _dictionary.ddl_conformance 4.2.0
@@ -207,7 +217,7 @@ _definition.update           $now
 _description.text
 ;
     The $head_name category becomes the overarching category
-    for the $category defined below.
+    for the $category category and related data names defined below.
 ;
     _name.category_id            $dic_name
     _name.object_id              $head_name

@@ -3,23 +3,23 @@ using ArgParse
 using DataFrames
 using Dates
 
-excise(full_dictionary, category) = begin
+excise(full_dictionary, category; kwargs...) = begin
 
     # Scope of work
     
     linked_keys, non_keys = find_relevant_defs(full_dictionary, category)
-    move_definitions!(full_dictionary, category, linked_keys, non_keys)
+    move_definitions!(full_dictionary, category, real_key, linked_keys, non_keys; kwargs...)
 end
 
-excise(full_dictionary, category, real_key) = begin
+excise(full_dictionary, category, real_key; kwargs...) = begin
 
     # Scope of work
     
     linked_keys, non_keys = find_relevant_defs(full_dictionary, category, real_key)
-    move_definitions!(full_dictionary, category, linked_keys, non_keys)
+    move_definitions!(full_dictionary, category, real_key, linked_keys, non_keys; kwargs...)
 end
 
-move_definitions!(full_dictionary, category, linked_keys, non_keys) = begin
+move_definitions!(full_dictionary, category, cat_key, linked_keys, non_keys; is_set = true) = begin
     
     # Create new importing dictionary
     
@@ -31,7 +31,7 @@ move_definitions!(full_dictionary, category, linked_keys, non_keys) = begin
     
     transfer_non_keys!(full_dictionary, new_dictionary, non_keys)
     transfer_keys!(full_dictionary, new_dictionary, linked_keys)
-    transfer_cat!(full_dictionary, new_dictionary, category)
+    transfer_cat!(full_dictionary, new_dictionary, category, cat_key, is_set)
 
     # Remove mention of category if we can
     remove_cat_comments!(full_dictionary, category)
@@ -79,7 +79,7 @@ remove_key!(dict::DDLm_Dictionary, catname, keyname) = begin
     dict.block[:category_key] = groupby(ck, :master_id)
 end
 
-transfer_cat!(old_dictionary, new_dictionary, catname) = begin
+transfer_cat!(old_dictionary, new_dictionary, catname, cat_key, is_set) = begin
     add_definition!(new_dictionary, old_dictionary[catname])
 
     # Does it need reparenting?
@@ -88,6 +88,14 @@ transfer_cat!(old_dictionary, new_dictionary, catname) = begin
     old_head = find_head_category(old_dictionary)
     if old_parent == old_head
         new_dictionary[catname][:name].category_id = [find_head_category(new_dictionary)]
+    end
+
+    # Is it a set category?
+    if is_set
+        @debug "Making $catname a Set category"
+        new_dictionary[catname][:definition].class = ["Set"]
+        remove_attribute!(new_dictionary, catname, :category_key, :name)
+        add_key!(new_dictionary, cat_key)
     end
     
     delete!(old_dictionary, catname)
@@ -223,6 +231,9 @@ parse_cmdline(d) = begin
         "-k", "--key"
         help = "Consider <key> to be the only true key for <category>"
         nargs = 1
+        "-s", "--set"
+        help = "Output removed category as a Set category"
+        action = :store_true
         "dictionary"
         help = "Name of dictionary to convert"
         required = true
@@ -245,9 +256,10 @@ if abspath(PROGRAM_FILE) == @__FILE__
     source_dic = parsed_args["dictionary"]
     gone_cat = parsed_args["category"]
     real_key = parsed_args["key"]
+    is_set = parsed_args["set"]
     @info "Arguments" parsed_args
     as_dic = DDLm_Dictionary(source_dic, ignore_imports = :All)
-    chopped_dic, new_dic = real_key == [] ? excise(as_dic, gone_cat) : excise(as_dic, gone_cat, real_key[])
+    chopped_dic, new_dic = real_key!=[] ? excise(as_dic, gone_cat, real_key[], is_set=is_set) : excise(as_dic, gone_cat, is_set = is_set)
 
     # And output these monsters
     outname = parsed_args["output"]

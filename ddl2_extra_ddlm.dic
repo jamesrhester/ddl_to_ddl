@@ -77,7 +77,7 @@ save_ddl2_sub_category.id
 ;
     _name.category_id            ddl2_sub_category
     _name.object_id              id
-    _name.linked_item_id         ddl2_sub_category_list.id
+    _name.linked_item_id         '_ddl2_sub_category_list.id'
     _type.purpose                Key
     _type.source                 Assigned
     _type.container              Single
@@ -205,7 +205,7 @@ save_ddl2_category_group.id
 ;
     _name.category_id            ddl2_category_group
     _name.object_id              id
-    _name.linked_item_id         ddl2_category_group_list.id
+    _name.linked_item_id         '_ddl2_category_group_list.id'
     _type.purpose                Key
     _type.source                 Assigned
     _type.container              Single
